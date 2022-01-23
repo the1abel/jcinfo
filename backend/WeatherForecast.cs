@@ -1,4 +1,4 @@
-namespace JCInfo_Backend
+namespace backend
 {
   public class WeatherForecast
   {
