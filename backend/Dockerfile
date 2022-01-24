@@ -1,22 +1,28 @@
-#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+# docker image to use as template (from https://hub.docker.com/_/microsoft-dotnet)
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
+# AS build-env
+# working directory in OS's file system
+# WORKDIR /jcinfo
 
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+# Copy csproj and restore as distinct layers
+# COPY /JCInfo-Backend/*.csproj ./
+# RUN dotnet restore
+
+# Copy everything else and build
+# COPY ../engine/examples ./
+# RUN dotnet publish -c Release -o out
+
+# Build runtime image
+# FROM mcr.microsoft.com/dotnet/aspnet:6.0
+# WORKDIR /jcinfo
+# COPY --from=build-env /jcinfo/out .
+# ENTRYPOINT ["dotnet", "JCInfo-Backend.dll"]
+
+# copy from OS's "publish" directory into container's "App" directory
+COPY bin/Release/net6.0/publish/ app/
+# working directory inside container
 WORKDIR /app
-EXPOSE 80
-EXPOSE 443
-
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
-WORKDIR /src
-COPY ["backend/backend.csproj", "backend/"]
-RUN dotnet restore "backend/backend.csproj"
-COPY . .
-WORKDIR "/src/backend"
-RUN dotnet build "backend.csproj" -c Release -o /app/build
-
-FROM build AS publish
-RUN dotnet publish "backend.csproj" -c Release -o /app/publish
-
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "backend.dll"]
+# add security by disabling the diagnostic pipeline, allowing container to run as readonly
+# https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-environment-variables
+ENV DOTNET_EnableDiagnostics=0
+ENTRYPOINT ["dotnet", "JCInfo-Backend.dll"]
