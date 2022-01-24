@@ -52,7 +52,8 @@ export default class App extends Component {
     }
 
     async populateWeatherData() {
-        const response = await fetch('api/weatherforecast');
+        const baseUrl = window.location.host.match(/^localhost*./) ? '' : 'api/';
+        const response = await fetch(baseUrl + 'weatherforecast');
         const data = await response.json();
         this.setState({ forecasts: data, loading: false });
     }
