@@ -25,4 +25,4 @@ WORKDIR /app
 # add security by disabling the diagnostic pipeline, allowing container to run as readonly
 # https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-environment-variables
 ENV DOTNET_EnableDiagnostics=0
-ENTRYPOINT ["dotnet", "JCInfo-Backend.dll"]
+ENTRYPOINT ["dotnet", "backend.dll"]
