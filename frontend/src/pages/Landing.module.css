@@ -1,0 +1,38 @@
+@import '../main.css';
+
+header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 3rem;
+  background-color: var(--blue-10);
+  padding-right: 1rem;
+}
+
+.header__button {
+  margin: .43rem;
+}
+
+main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 6rem);
+  background-color: var(--blue-10);
+}
+
+.formGroup {
+  width: 80%;
+  max-width: 35rem;
+}
+
+.formGroup__row_rightAlign {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.75rem 0;
+}
+
+footer {
+  height: 3rem;
+  background-color: var(--blue-10);
+}
