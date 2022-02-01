@@ -1,24 +1,29 @@
 import React from "react";
-import { Button, FormGroup, InputAdornment, TextField } from "@mui/material";
+import {
+  Button,
+  InputAdornment,
+  TextField,
+} from "@mui/material";
 import Home from "@mui/icons-material/Home";
 import styles from "./Landing.module.css";
+import Header from "../components/Header";
 
 export default function Landing() {
+  const goToInfo = ev => {
+    ev.preventDefault();
+    const unit = document.getElementById('unitName').value;
+    document.location.pathname =
+        encodeURIComponent(unit.toLocaleLowerCase().replaceAll(' ', ''));
+  };
+
   return (
     <React.Fragment>
-      <header>
-        <Button variant="outlined" size="small" className={styles.header__button}>
-          Sign Up
-        </Button>
-        <Button variant="contained" size="small" className={styles.header__button}>
-          Log In
-        </Button>
-      </header>
+      <Header />
 
-      <main>
-        <FormGroup className={styles.formGroup}>
+      <main className={styles.main}>
+        <form onSubmit={goToInfo} className={styles.form}>
           <TextField
-            id="unit-name"
+            id="unitName"
             label="Ward, Stake, or Church Name"
             fullWidth
             InputProps={{
@@ -30,13 +35,13 @@ export default function Landing() {
               ),
             }}
           />
-          <div className={styles.formGroup__row_rightAlign}>
-            <Button variant="contained">Go</Button>
+          <div className={styles.form__row_rightAlign}>
+            <Button type="submit" variant="contained">Go</Button>
           </div>
-        </FormGroup>
+        </form>
       </main>
 
-      <footer></footer>
+      <footer className={styles.footer}></footer>
     </React.Fragment>
   );
 }

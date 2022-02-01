@@ -1,0 +1,14 @@
+@import '../main.css';
+
+.header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 3rem;
+  background-color: var(--blue-10);
+  padding-right: 1rem;
+}
+
+button.header__button {
+  margin: .43rem;
+}
