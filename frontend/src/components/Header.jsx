@@ -17,6 +17,7 @@ import {
 import styles from "./Header.module.css";
 
 export default function Header(props) {
+  // TODO use Context to maintain isLoggedIn and stayLogged in state
   const [isLoggedIn, setLoggedIn] = useState(props.isLoggedIn || false);
 
   // Log In
@@ -35,7 +36,7 @@ export default function Header(props) {
   };
 
   // Stay Logged In
-  const [stayLoggedIn, setStayLoggedIn] = useState(false); // TODO change default state based on useEffect or global Context state
+  const [stayLoggedIn, setStayLoggedIn] = useState(false);
 
   // Sign Up
   const [signUpOpen, setSignUpOpen] = useState(false);
@@ -55,6 +56,8 @@ export default function Header(props) {
   return (
     <React.Fragment>
       <header className={styles.header}>
+        <h2>J.C. Info.</h2>
+        <h2>{props.title}</h2>
         <Button
           variant="outlined"
           size="small"
@@ -82,7 +85,7 @@ export default function Header(props) {
               autoFocus
               margin="dense"
               id="username"
-              label="Email"
+              label="email"
               type="email"
               fullWidth
               variant="standard"
@@ -155,7 +158,7 @@ export default function Header(props) {
             <TextField
               margin="dense"
               id="newUsername"
-              label="Email"
+              label="email"
               type="email"
               fullWidth
               variant="standard"

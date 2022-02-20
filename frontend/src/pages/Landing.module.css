@@ -1,9 +1,5 @@
 @import '../main.css';
 
-.main {
-  height: calc(100vh - 6rem);
-}
-
 .form {
   width: 80%;
   max-width: 35rem;

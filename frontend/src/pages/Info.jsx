@@ -7,17 +7,30 @@ import styles from "./Info.module.css";
 import Header from "../components/Header";
 
 export default function Info(props) {
-  const [isLoading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [pageTitle, setPageTitle] = useState('');
+  const [events, setEvents] = useState([]);
 
+  useEffect(() => {
+    const info = {
+      unit: 'ranchocaliforniaward',
+      unitName: 'Rancho California Ward',
+      events: [
+        {
+          title: 'Sacrament Meeting',
+          dateStart: '',
+        }
+      ]
+    };
+
+    setPageTitle(info.unitName);
+    setIsLoading(false);
+  }, []);
 
 
   return (
     <React.Fragment>
       <Header title={pageTitle} />
-      <header className={styles.header}>
-
-      </header>
 
       <main className={styles.main}>
         {isLoading && <CircularProgress />}

@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond&family=Roboto&display=swap');
 
 :root {
   --grey-20: rgb(241, 241, 243);
@@ -12,9 +13,9 @@
 }
 
 main {
+  flex-grow: 1;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: calc(100vh - 3rem);
+  justify-content: center; /* horizontal */
+  align-items: center; /* vertical */
   background-color: var(--blue-10);
 }

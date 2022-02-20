@@ -2,13 +2,21 @@
 
 .header {
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  height: 3rem;
+  align-items: center; /* vertical */
+  min-height: 3rem;
   background-color: var(--blue-10);
-  padding-right: 1rem;
+  padding: 0 1rem;
 }
 
 button.header__button {
   margin: .43rem;
+}
+
+.header > *:nth-child(1) {
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.header > *:nth-child(2) {
+  flex-grow: 1;
+  text-align: center;
 }
