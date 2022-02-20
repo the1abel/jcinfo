@@ -1,12 +1,12 @@
-cd opt/jcinfo/backend
+cd /opt/jcinfo/backend
 
 echo "*** dotnet publish -c Release"
 dotnet publish -c Release
 
 runningDockerProcess=$(docker ps -a -q --filter ancestor=jcinfo-backend)
 # if Non-zero-length string, then...
-if [ -n "$runningDockerProcess" ] then
-    docker stop $runningDockerProcess
+if [ -n "$runningDockerProcess" ]; then
+    docker stop "$runningDockerProcess"
 else
     echo ""
     echo "*** No Docker process is running with the jcinfo-backend image."

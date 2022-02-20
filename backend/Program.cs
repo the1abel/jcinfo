@@ -1,6 +1,19 @@
+using backend.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddSingleton<DbConnectionService>();
+builder.Services.AddSingleton<PeopleService>();
+
+builder.Services.AddDistributedMemoryCache(); // TODO replace with database cache
+builder.Services.AddSession(options =>
+{
+  options.IdleTimeout = TimeSpan.FromDays(21);
+  options.Cookie.Name = "Tag";
+  options.Cookie.HttpOnly = true;
+  options.Cookie.IsEssential = true;
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -19,6 +32,20 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseSession(); // must be before Mapcontrollers()
+
+// // custom middleware to require authentication for every path that is not "/"
+// app.Use(async (context, next) =>
+// {
+//   if (context.Request.Path != "/"
+//       && string.IsNullOrEmpty(context.Session.GetString("email")))
+//   {
+//     context.Response.Redirect("/");
+//   }
+//
+//   await next();
+// });
 
 app.MapControllers();
 

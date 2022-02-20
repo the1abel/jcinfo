@@ -1,13 +1,16 @@
-# execute via: /opt/jcinfo/build.sh | tee -a '/opt/jcinfo/build.log'
+# execute via: /opt/jcinfo/build.sh | tee -a "/opt/jcinfo/build.log"
 # -a means append
 
 
 echo ""
+echo ""
+echo ""
 echo "**********************************************************************"
-echo "$(TZ=America/Los_Angeles date) - Git pull commencing..."
+echo "$(TZ=America/Los_Angeles date) - Download from GitHub commencing..."
 echo "**********************************************************************"
 cd /opt/jcinfo
-git pull
+git fetch origin main
+git reset --hard FETCH_HEAD
 
 echo ""
 echo "**********************************************************************"
