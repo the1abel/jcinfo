@@ -5,8 +5,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddSingleton<DbConnectionService>();
 builder.Services.AddSingleton<PeopleService>();
+builder.Services.AddSingleton<ChurchUnitsService>();
 
-builder.Services.AddDistributedMemoryCache(); // TODO replace with database cache
+// TODO replace with NCache/Redis or possibly MongoDB: https://github.com/MarkCBB/aspnet-mongodb-session-sample#aspnet-core-mongodb-session-sample
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
   options.IdleTimeout = TimeSpan.FromDays(21);

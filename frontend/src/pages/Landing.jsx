@@ -24,7 +24,7 @@ export default function Landing() {
         <form onSubmit={goToInfo} className={styles.form}>
           <TextField
             id="unitName"
-            label="Ward, Stake, or Church Name"
+            label="Church Unit Name"
             fullWidth
             InputProps={{
               autoFocus: true,

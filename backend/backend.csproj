@@ -12,6 +12,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.14.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.5" />
+    <PackageReference Include="UnidecodeSharpFork" Version="1.0.0" />
   </ItemGroup>
 
 </Project>

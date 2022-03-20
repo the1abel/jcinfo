@@ -2,7 +2,7 @@ using backend.Models;
 using backend.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
+using System.ComponentModel.DataAnnotations;
 
 namespace backend.Controllers;
 
@@ -19,22 +19,39 @@ public class AuthController : ControllerBase
     _passwordHasher = new PasswordHasher<string>();
   }
 
+  [HttpGet("IsUniqueEmail")]
+  public async Task<IActionResult> IsUniqueEmail(string? email)
+  {
+    if (!new EmailAddressAttribute().IsValid(email))
+    {
+      return Ok(new { result = false }); // not BadRequest() because user may still be typing
+    }
+
+    Person? dbResPerson = await _peopleService.GetByEmailAsync(email);
+
+    return Ok(new { result = dbResPerson is null });
+  }
+
   [HttpPost("SignUp")]
   public async Task<IActionResult> SignUp(Person newPerson)
   {
-    newPerson.Password =
-        _passwordHasher.HashPassword(newPerson.Email, newPerson.Password);
-
-    string? dbRes = await _peopleService.CreateAsync(newPerson);
-
-    if (dbRes.Equals("successful"))
+    if (!new EmailAddressAttribute().IsValid(newPerson.Email))
     {
-
-
-      return CreatedAtAction(nameof(SignUp), new { id = newPerson.Email },
-          new { result = "success" });
+      return BadRequest(new { result = "error" });
     }
-    else if (dbRes.Equals("duplicate"))
+
+    newPerson.Password =
+      _passwordHasher.HashPassword(newPerson.Email, newPerson.Password);
+
+    string? newPersonIdOrErr = await _peopleService.CreateAsync(newPerson);
+
+    if (newPersonIdOrErr is not null && newPersonIdOrErr.Length == 24)
+    {
+      HttpContext.Session.SetString("personId", newPersonIdOrErr);
+      return CreatedAtAction(nameof(Permissions), new { email = newPerson.Email },
+          new { result = "success", permissions = new { } });
+    }
+    else if (newPersonIdOrErr is not null && newPersonIdOrErr.Equals("duplicate"))
     {
       return BadRequest(new { result = "duplicate" });
     }
@@ -51,7 +68,7 @@ public class AuthController : ControllerBase
 
     if (dbResPerson is null)
     {
-      return NotFound();
+      return Ok(new { result = "authentication failed" });
     }
 
     PasswordVerificationResult pwRes = _passwordHasher
@@ -59,26 +76,15 @@ public class AuthController : ControllerBase
 
     if (pwRes.HasFlag(PasswordVerificationResult.Success))
     {
-      Console.WriteLine(pwRes.ToString());
       HttpContext.Session.SetString("personId", dbResPerson.Id);
-      return CreatedAtAction(nameof(LogIn), new { id = person.Email });
+      HttpContext.Session.SetString("psermissions", dbResPerson.Permissions.ToString());
+      return CreatedAtAction(nameof(Permissions), new { email = person.Email },
+        new { result = "success", permissions = dbResPerson.Permissions });
     }
     else
     {
-      return NotFound();
+      return Ok(new { result = "authentication failed" });
     }
-  }
-
-  [HttpDelete("LogOut")]
-  public async Task<IActionResult> LogOut(Person person)
-  {
-    person.Password =
-        _passwordHasher.HashPassword(person.Email, person.Password);
-
-    await _peopleService.CreateAsync(person);
-    HttpContext.Session.SetString("personId", person.Id);
-
-    return CreatedAtAction(nameof(LogOut), new { id = person.Id }, person);
   }
 
   [HttpDelete("LogOut")]
@@ -95,22 +101,25 @@ public class AuthController : ControllerBase
     }
   }
 
-  // [HttpGet]
-  // public async Task<List<Person>> IsLoggedIn() =>
-  //     await _peopleService.GetAsync();
-  //
-  // [HttpGet("{id:length(24)}")]
-  // public async Task<ActionResult<Person>> IsLoggedIn(string id)
-  // {
-  //   var person = await _peopleService.GetAsync(id);
-  //
-  //   if (person is null)
-  //   {
-  //     return NotFound();
-  //   }
-  //
-  //   return person;
-  // }
+  [HttpGet("Permissions")]
+  public async Task<IActionResult> Permissions(string? email)
+  {
+    Person? dbResPerson = null;
+    if (!string.IsNullOrEmpty(email))
+    {
+      dbResPerson = await _peopleService.GetByEmailAsync(email);
+    }
+    string? personId = HttpContext.Session.GetString("personId");
+
+    if (dbResPerson is not null && dbResPerson.Id.Equals(personId))
+    {
+      return Ok(new { result = "success", permissions = dbResPerson.Permissions });
+    }
+    else
+    {
+      return Ok(new { result = "not logged in" });
+    }
+  }
 
   // [HttpPut("ChangePassword")]
   // public async Task<IActionResult> ChangePassword(Person updatedPerson)
@@ -119,7 +128,7 @@ public class AuthController : ControllerBase
   //
   //   if (person is null)
   //   {
-  //     return NotFound();
+  //     return Ok(new { result = "authentication failed" });
   //   }
   //
   //   updatedPerson.Id = person.Id;

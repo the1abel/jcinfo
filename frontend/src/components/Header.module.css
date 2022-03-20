@@ -12,8 +12,11 @@ button.header__button {
   margin: .43rem;
 }
 
-.header > *:nth-child(1) {
+/* J.C.Info. link */
+.header > *:nth-child(1) * {
   font-family: 'Cormorant Garamond', serif;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .header > *:nth-child(2) {

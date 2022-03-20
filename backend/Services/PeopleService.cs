@@ -12,16 +12,16 @@ namespace backend.Services
       _peopleCollection = db.GetConnection().GetCollection<Person>("people");
     }
 
-    public async Task<List<Person>> GetAsync() =>
-        await _peopleCollection.Find(_ => true).ToListAsync();
+    // public async Task<List<Person>> GetAsync() =>
+    //     await _peopleCollection.Find(_ => true).ToListAsync();
 
-    public async Task<Person?> GetAsync(string id) =>
-        await _peopleCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+    // public async Task<Person?> GetAsync(string id) =>
+    //     await _peopleCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
     public async Task<Person?> GetByEmailAsync(string email) =>
         await _peopleCollection.Find(x => x.Email.Equals(email)).FirstOrDefaultAsync();
 
-    public async Task<String> CreateAsync(Person newPerson)
+    public async Task<String?> CreateAsync(Person newPerson)
     {
       try
       {
@@ -39,13 +39,13 @@ namespace backend.Services
           return "error";
         }
       }
-      return "successful";
+      return newPerson.Id;
     }
 
-    public async Task UpdateAsync(string id, Person updatedPerson) =>
-        await _peopleCollection.ReplaceOneAsync(x => x.Id == id, updatedPerson);
+    // public async Task UpdateAsync(string id, Person updatedPerson) =>
+    //     await _peopleCollection.ReplaceOneAsync(x => x.Id == id, updatedPerson);
 
-    public async Task RemoveAsync(string id) =>
-        await _peopleCollection.DeleteOneAsync(x => x.Id == id);
+    // public async Task RemoveAsync(string id) =>
+    //     await _peopleCollection.DeleteOneAsync(x => x.Id == id);
   }
 }
