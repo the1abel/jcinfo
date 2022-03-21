@@ -18,8 +18,8 @@ namespace backend.Services
     // public async Task<Person?> GetAsync(string id) =>
     //     await _peopleCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
-    public async Task<Person?> GetByEmailAsync(string email) =>
-        await _peopleCollection.Find(x => x.Email.Equals(email)).FirstOrDefaultAsync();
+    public async Task<Person?> GetByEmailAsync(string? email) =>
+        await _peopleCollection.Find(x => x.Email == email).FirstOrDefaultAsync();
 
     public async Task<String?> CreateAsync(Person newPerson)
     {

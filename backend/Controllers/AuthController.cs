@@ -40,8 +40,10 @@ public class AuthController : ControllerBase
       return BadRequest(new { result = "error" });
     }
 
+#pragma warning disable CS8604 // Possible null reference argument.
     newPerson.Password =
       _passwordHasher.HashPassword(newPerson.Email, newPerson.Password);
+#pragma warning restore CS8604 // Possible null reference argument.
 
     string? newPersonIdOrErr = await _peopleService.CreateAsync(newPerson);
 
@@ -71,13 +73,17 @@ public class AuthController : ControllerBase
       return Ok(new { result = "authentication failed" });
     }
 
+#pragma warning disable CS8604 // Possible null reference argument.
     PasswordVerificationResult pwRes = _passwordHasher
       .VerifyHashedPassword(person.Email, dbResPerson.Password, person.Password);
+#pragma warning disable CS8604 // Possible null reference argument.
 
     if (pwRes.HasFlag(PasswordVerificationResult.Success))
     {
       HttpContext.Session.SetString("personId", dbResPerson.Id);
+#pragma warning disable CS8602 // Possible null reference argument.
       HttpContext.Session.SetString("psermissions", dbResPerson.Permissions.ToString());
+#pragma warning disable CS8602 // Possible null reference argument.
       return CreatedAtAction(nameof(Permissions), new { email = person.Email },
         new { result = "success", permissions = dbResPerson.Permissions });
     }
@@ -88,12 +94,12 @@ public class AuthController : ControllerBase
   }
 
   [HttpDelete("LogOut")]
-  public async Task<IActionResult> LogOut()
+  public IActionResult LogOut()
   {
     if (!string.IsNullOrEmpty(HttpContext.Session.GetString("personId")))
     {
       HttpContext.Session.Clear();
-      return Ok();
+      return Ok(new { result = "Success"} );
     }
     else
     {

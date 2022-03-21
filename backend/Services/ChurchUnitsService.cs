@@ -18,9 +18,9 @@ namespace backend.Services
     // public async Task<ChurchUnit?> GetAsync(string id) =>
     //     await _churchUnitCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
-    public async Task<ChurchUnit?> GetByUrlNameAsync(string urlName) =>
+    public async Task<ChurchUnit?> GetByUrlNameAsync(string? urlName) =>
         await _churchUnitCollection
-          .Find(x => x.UrlName.Equals(urlName)).FirstOrDefaultAsync();
+          .Find(x => x.UrlName == urlName).FirstOrDefaultAsync();
 
     // public async Task<List<ChurchUnit>?> FindAsync(string searchString)
     // {
