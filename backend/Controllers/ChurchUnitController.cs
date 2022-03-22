@@ -14,10 +14,13 @@ namespace backend.Controllers
   public class ChurchUnitController : ControllerBase
   {
     private readonly ChurchUnitsService _churchUnitsService;
+    private readonly PeopleService _peopleService;
 
-    public ChurchUnitController(ChurchUnitsService churchUnitsService)
+    public ChurchUnitController(
+        ChurchUnitsService churchUnitsService, PeopleService peopleService)
     {
       _churchUnitsService = churchUnitsService;
+      _peopleService = peopleService;
     }
 
     private string ConvertToUrlName(string? name)
@@ -45,7 +48,6 @@ namespace backend.Controllers
       ChurchUnit? dbResChurchUnit = await _churchUnitsService.GetByUrlNameAsync(urlName);
 
       Boolean isUniqueUrlName = dbResChurchUnit is null;
-      Console.WriteLine("isUniqueUrlName: " + isUniqueUrlName); // DEBUG
 
       return Ok(new { result = isUniqueUrlName, urlName = urlName });
     }
@@ -68,7 +70,14 @@ namespace backend.Controllers
     [HttpPost("Create")]
     public async Task<IActionResult> Create(ChurchUnit newChurchUnit)
     {
-      if (string.IsNullOrEmpty(newChurchUnit.Name) || newChurchUnit.Name.Length < 3)
+      string? personId = HttpContext.Session.GetString("personId");
+
+      if (personId is null)
+      {
+        return BadRequest(new { result = "notLoggedIn" });
+      }
+      else if (string.IsNullOrWhiteSpace(newChurchUnit.Name) ||
+          newChurchUnit.Name.Length < 3)
       {
         return BadRequest(new { result = "error" });
       }
@@ -79,6 +88,9 @@ namespace backend.Controllers
 
       if (newChurchUnitOrErr is not null && newChurchUnitOrErr.Length == 24)
       {
+        _ = _peopleService
+          .AddPermissionAsync(HttpContext, newChurchUnit.UrlName, "all", "admin");
+
         return CreatedAtAction(nameof(Find), new { urlName = newChurchUnit.UrlName },
             new { result = "success", urlName = newChurchUnit.UrlName });
       }

@@ -41,6 +41,7 @@ export default function LogInModal(props) {
   const [logInError, setLogInError] = useState(null);
 
   const closeModal = () => {
+    setLogInError(null);
     reset();
     props.onClose();
   };

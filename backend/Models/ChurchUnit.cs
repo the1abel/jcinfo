@@ -10,8 +10,6 @@ namespace backend.Models
     public string? Id { get; set; }
     public string? Name { get; set; } // Friendly Name
     public string? UrlName { get; set; }
-    [BsonRepresentation(BsonType.ObjectId)]
-    public string? AdministratorId { get; set; }
     public Dictionary<string, Organization>? Organizations { get; set; }
   }
 

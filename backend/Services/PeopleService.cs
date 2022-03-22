@@ -1,5 +1,6 @@
 ﻿using backend.Models;
 using MongoDB.Driver;
+using System.Text.Json;
 
 namespace backend.Services
 {
@@ -40,6 +41,51 @@ namespace backend.Services
         }
       }
       return newPerson.Id;
+    }
+
+    public async Task AddPermissionAsync(HttpContext httpContext, string churchUnitUrlName,
+      string organization, string newPermission)
+    {
+      string? id = httpContext.Session.GetString("personId");
+      string? currentPermissionsStr = httpContext.Session.GetString("permissions");
+      Console.WriteLine("in AddPermissionAsync with personId: " + id + " currentPermissionsStr: " + currentPermissionsStr); // DEBUG
+
+      Dictionary<string, Dictionary<string, string>>? permissions = null;
+
+      if (currentPermissionsStr is not null)
+      {
+        permissions = JsonSerializer.Deserialize
+          <Dictionary<string, Dictionary<string, string>>>(currentPermissionsStr);
+
+        if (permissions is not null && permissions.ContainsKey(churchUnitUrlName))
+        {
+          permissions[churchUnitUrlName][organization] = newPermission;
+        }
+        else if (permissions is not null)
+        {
+          permissions[churchUnitUrlName] = new Dictionary<string, string>
+          {
+            { organization, newPermission }
+          };
+        }
+      }
+      else
+      {
+        permissions = new Dictionary<string, Dictionary<string, string>>
+        {
+          {
+            churchUnitUrlName,
+            new Dictionary<string, string> { {organization, newPermission } }
+          }
+        };
+      }
+
+      httpContext.Session.SetString("permissions", JsonSerializer.Serialize(permissions));
+
+      UpdateDefinition<Person>? update =
+        Builders<Person>.Update.Set("Permissions", permissions);
+
+      await _peopleCollection.UpdateOneAsync(x => x.Id == id, update);
     }
 
     // public async Task UpdateAsync(string id, Person updatedPerson) =>

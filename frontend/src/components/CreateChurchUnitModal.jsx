@@ -13,9 +13,11 @@ import {
   TextField,
 } from "@mui/material";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 export default function CreateChurchUnitModal(props) {
+  const navigate = useNavigate();
   const permissionsCtx = useContext(PermissionsContext);
 
   // form validation schema (yup)
@@ -39,19 +41,19 @@ export default function CreateChurchUnitModal(props) {
   const [urlName, setUrlName] = useState("");
 
   const closeModal = () => {
+    setCreateError(null);
     reset();
     setUrlName("");
     props.onClose();
   };
 
-  // email is unique
+  // Church Unit Name is unique
   const [isUniqueName, setIsUniqueName] = useState(true);
   const handleNameChange = (ev) => {
     // TODO wait for a pause in user input before fetching
     fetch("/api/ChurchUnit/IsUniqueName?name=" + encodeURIComponent(ev.target.value))
       .then((resStream) => resStream.json())
       .then((res) => {
-        console.log('res.result', res.result); // DEBUG
         setIsUniqueName(res.result);
         setUrlName(res.urlName);
       })
@@ -81,7 +83,9 @@ export default function CreateChurchUnitModal(props) {
       .then((res) => {
         if (res.result === "success") {
           closeModal();
-          // TODO redirect to new unit page
+          navigate("/" + res.urlName);
+        } else if (res.result === "notLoggedIn") {
+          setCreateError("You must be logged in to create a church unit.");
         } else {
           setCreateError(
             "Oops.  There was an error creating your church unit.  Please try again"

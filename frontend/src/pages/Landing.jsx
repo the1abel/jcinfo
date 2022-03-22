@@ -1,19 +1,27 @@
-import React from "react";
-import {
-  Button,
-  InputAdornment,
-  TextField,
-} from "@mui/material";
-import Home from "@mui/icons-material/Home";
-import styles from "./Landing.module.css";
 import Header from "../components/Header";
+import Home from "@mui/icons-material/Home";
+import React, { useState } from "react";
+import styles from "./Landing.module.css";
+import { Alert, Button, InputAdornment, TextField } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 export default function Landing() {
-  const goToInfo = ev => {
+  const navigate = useNavigate();
+  const [navigateError, setNavigateError] = useState(null);
+
+  const goToInfo = (ev) => {
     ev.preventDefault();
-    const unit = document.getElementById('unitName').value;
-    document.location.pathname =
-        encodeURIComponent(unit.toLocaleLowerCase().replaceAll(' ', ''));
+    const unit = document.getElementById("unitName").value;
+
+    fetch("api/ChurchUnit/IsUniqueName?name=" + unit)
+      .then((resStream) => resStream.json())
+      .then((res) => {
+        if (!res.result) navigate("/" + res.urlName);
+        else
+          setNavigateError(
+            "There is no Church Unit by that name.  You can log in and crete it."
+          );
+      });
   };
 
   return (
@@ -25,6 +33,7 @@ export default function Landing() {
           <TextField
             id="unitName"
             label="Church Unit Name"
+            onChange={() => setNavigateError(null)}
             fullWidth
             InputProps={{
               autoFocus: true,
@@ -35,8 +44,11 @@ export default function Landing() {
               ),
             }}
           />
+          {navigateError && <Alert severity="error">{navigateError}</Alert>}
           <div className={styles.form__row_rightAlign}>
-            <Button type="submit" variant="contained">Go</Button>
+            <Button type="submit" variant="contained">
+              Go
+            </Button>
           </div>
         </form>
       </main>

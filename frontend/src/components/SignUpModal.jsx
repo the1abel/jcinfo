@@ -46,6 +46,7 @@ export default function SignUpModal(props) {
   const [signUpError, setSignUpError] = useState(null);
 
   const closeModal = () => {
+    setSignUpError(null);
     reset();
     props.onClose();
   };

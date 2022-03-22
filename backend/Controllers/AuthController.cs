@@ -3,6 +3,7 @@ using backend.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 namespace backend.Controllers;
 
@@ -81,9 +82,8 @@ public class AuthController : ControllerBase
     if (pwRes.HasFlag(PasswordVerificationResult.Success))
     {
       HttpContext.Session.SetString("personId", dbResPerson.Id);
-#pragma warning disable CS8602 // Possible null reference argument.
-      HttpContext.Session.SetString("psermissions", dbResPerson.Permissions.ToString());
-#pragma warning disable CS8602 // Possible null reference argument.
+      HttpContext.Session
+        .SetString("permissions", JsonSerializer.Serialize(dbResPerson.Permissions));
       return CreatedAtAction(nameof(Permissions), new { email = person.Email },
         new { result = "success", permissions = dbResPerson.Permissions });
     }
