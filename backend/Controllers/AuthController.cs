@@ -41,10 +41,10 @@ public class AuthController : ControllerBase
       return BadRequest(new { result = "error" });
     }
 
-#pragma warning disable CS8604 // Possible null reference argument.
+    #pragma warning disable CS8604 // Possible null reference argument.
     newPerson.Password =
       _passwordHasher.HashPassword(newPerson.Email, newPerson.Password);
-#pragma warning restore CS8604 // Possible null reference argument.
+    #pragma warning restore CS8604 // Possible null reference argument.
 
     string? newPersonIdOrErr = await _peopleService.CreateAsync(newPerson);
 
@@ -74,10 +74,10 @@ public class AuthController : ControllerBase
       return Ok(new { result = "authentication failed" });
     }
 
-#pragma warning disable CS8604 // Possible null reference argument.
+    #pragma warning disable CS8604 // Possible null reference argument.
     PasswordVerificationResult pwRes = _passwordHasher
       .VerifyHashedPassword(person.Email, dbResPerson.Password, person.Password);
-#pragma warning disable CS8604 // Possible null reference argument.
+    #pragma warning restore CS8604 // Possible null reference argument.
 
     if (pwRes.HasFlag(PasswordVerificationResult.Success))
     {

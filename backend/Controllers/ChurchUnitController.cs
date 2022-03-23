@@ -83,13 +83,14 @@ namespace backend.Controllers
       }
 
       newChurchUnit.UrlName = ConvertToUrlName(newChurchUnit.Name);
+      newChurchUnit.SetOrganizationsWithDefaults();
 
       string? newChurchUnitOrErr = await _churchUnitsService.CreateAsync(newChurchUnit);
 
       if (newChurchUnitOrErr is not null && newChurchUnitOrErr.Length == 24)
       {
         _ = _peopleService
-          .AddPermissionAsync(HttpContext, newChurchUnit.UrlName, "all", "admin");
+          .AddOrUpdatePermissionAsync(HttpContext, newChurchUnit.UrlName, "all", "admin");
 
         return CreatedAtAction(nameof(Find), new { urlName = newChurchUnit.UrlName },
             new { result = "success", urlName = newChurchUnit.UrlName });

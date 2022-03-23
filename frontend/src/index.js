@@ -1,7 +1,7 @@
 import { render } from "react-dom";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PermissionsContextProvider } from "./store/PermissionsContext";
-import Info from "./pages/Info";
+import ChurchUnit from "./pages/ChurchUnit";
 import Landing from "./pages/Landing";
 
 window.addEventListener('beforeunload', () => {
@@ -17,7 +17,7 @@ render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/:churchUnit" element={<Info />} />
+        <Route path="/:churchUnit" element={<ChurchUnit />} />
       </Routes>
     </BrowserRouter>
   </PermissionsContextProvider>,
