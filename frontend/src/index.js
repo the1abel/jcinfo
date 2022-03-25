@@ -1,6 +1,7 @@
 import { render } from "react-dom";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PermissionsContextProvider } from "./store/PermissionsContext";
+import Colors from "./pages/Colors";
 import ChurchUnit from "./pages/ChurchUnit";
 import Landing from "./pages/Landing";
 
@@ -17,6 +18,7 @@ render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Landing />} />
+        <Route path="/colors" element={<Colors />} />
         <Route path="/:churchUnit" element={<ChurchUnit />} />
       </Routes>
     </BrowserRouter>

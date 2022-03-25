@@ -12,7 +12,7 @@ button.header__button {
   margin: .43rem;
 }
 
-/* J.C.Info. link */
+/* J.C.Info. link (link goes to landing page) */
 .header > *:nth-child(1) * {
   font-family: 'Cormorant Garamond', serif;
   text-decoration: none;

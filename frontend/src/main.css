@@ -4,6 +4,32 @@
 :root {
   --grey-20: rgb(241, 241, 243);
   --blue-10: rgb(221, 230, 247);
+
+  /* https://flatuicolors.com/palette/ru */
+  --rogue-pink: #f8a5c2;
+  --flamingo-pink: #f78fb3;
+  --apple-valley: #ea8685;
+  --old-geranium: #cf6a87;
+  --deep-rose: #c44569;
+  --tiger-lilly: #e15f41;
+  --porcelain-rose: #e66767;
+  --brewed-mustard: #e77f67;
+  --sawtooth-aak: #f19066;
+  --creamy-peach: #f3a683;
+  --rosy-highlight: #f7d794;
+  --summertime: #f5cd79;
+  --squeaky: #63cdda;
+  --blue-curacao: #3dc1d3;
+  --soft-blue: #778beb;
+  --cornflower-blue: cornflowerblue; /* native */
+  --cornflower: #546de5;
+  --purple-mountain-majesty: #786fa6;
+  --purple-corallite: #574b90;
+  --biscay: #303952;
+  --pencil-lead: #596275;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
 }
 
 * {
@@ -18,4 +44,11 @@ main {
   justify-content: center; /* horizontal */
   align-items: center; /* vertical */
   background-color: var(--blue-10);
+}
+
+.colors > div {
+  border: 1px solid lightgrey;
+  border-radius: var(--radius-md);
+  padding: .5rem;
+  margin: .25rem;
 }
