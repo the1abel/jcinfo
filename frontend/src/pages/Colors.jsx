@@ -3,8 +3,8 @@ import "../main.css";
 
 export default function Colors() {
   return (
-    <div className="colors">
-      <h1>Colors</h1>
+    <div className="color-palette">
+      <h1>Color palette</h1>
       <div style={{ backgroundColor: "var(--rogue-pink)" }}>rogue-pink</div>
       <div style={{ backgroundColor: "var(--flamingo-pink)" }}>flamingo-pink</div>
       <div style={{ backgroundColor: "var(--apple-valley)" }}>apple-valley</div>

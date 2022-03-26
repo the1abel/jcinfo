@@ -1,0 +1,18 @@
+@import "../main.css";
+
+.event {
+  width: 100%;
+  border: 1px solid lightgrey;
+  border-radius: var(--radius-md);
+  padding: min(1vw, 12px);
+  margin-bottom: 0.25rem;
+}
+
+.event * {
+  font-weight: 100;
+}
+
+.orgTitle {
+  margin-left: 0.5rem;
+  font-size: 0.95rem;
+}

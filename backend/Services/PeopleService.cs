@@ -44,10 +44,10 @@ namespace backend.Services
     }
 
     public async Task AddOrUpdatePermissionAsync(HttpContext httpContext, string churchUnitUrlName,
-      string organization, string newPermission)
+      string org, string newPermission)
     {
       var permissions = Person.AddOrUpdatePermission(
-        httpContext, churchUnitUrlName, organization, newPermission);
+        httpContext, churchUnitUrlName, org, newPermission);
 
       string? id = httpContext.Session.GetString("personId");
 

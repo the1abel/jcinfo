@@ -1,8 +1,29 @@
 @import '../main.css';
 
-.main {
-  display: flex;
-  justify-content: center; /* horizontal */
-  align-items: center; /* vertical */
-  background-color: var(--blue-10);
+main {
+  align-items: flex-start; /* vertical */
+}
+
+main > div {
+  padding: .5rem;
+  height: 100%;
+}
+main > div > :first-child:not(.spinner) {
+  margin-top: 0;
+}
+
+.filterContainer {
+  flex-grow: 1;
+}
+
+.eventsContainer {
+  flex-grow: 2;
+}
+
+.spinner {
+  margin: 40%;
+}
+
+.actionsContainer {
+  flex-grow: 1;
 }

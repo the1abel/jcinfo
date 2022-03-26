@@ -83,7 +83,7 @@ namespace backend.Controllers
       }
 
       newChurchUnit.UrlName = ConvertToUrlName(newChurchUnit.Name);
-      newChurchUnit.SetOrganizationsWithDefaults();
+      newChurchUnit.SetOrgsWithDefaults();
 
       string? newChurchUnitOrErr = await _churchUnitsService.CreateAsync(newChurchUnit);
 
@@ -105,17 +105,17 @@ namespace backend.Controllers
       }
     }
 
-    // PUT api/<ChurchUnitController>/name
-    [HttpPut("{name}")]
-    public void Put(int name, [FromBody] string value)
-    {
-    }
+    //// PUT api/<ChurchUnitController>/name
+    //[HttpPut("{name}")]
+    //public void Put(int name, [FromBody] string value)
+    //{
+    //}
 
-    // DELETE api/<ChurchUnitController>/name
-    [HttpDelete("{name}")]
-    public void Delete(int name)
-    {
-    }
+    //// DELETE api/<ChurchUnitController>/name
+    //[HttpDelete("{name}")]
+    //public void Delete(int name)
+    //{
+    //}
 
     //// GET api/<ChurchUnitController>/name
     //[HttpGet("{name}")]

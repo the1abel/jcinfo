@@ -19,7 +19,7 @@ render(
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/colors" element={<Colors />} />
-        <Route path="/:churchUnit" element={<ChurchUnit />} />
+        <Route path="/:churchUnitUrlName" element={<ChurchUnit />} />
       </Routes>
     </BrowserRouter>
   </PermissionsContextProvider>,
