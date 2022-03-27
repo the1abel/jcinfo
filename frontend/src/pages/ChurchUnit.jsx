@@ -56,7 +56,7 @@ export default function ChurchUnit(props) {
         </div>
         <div className={styles.eventsContainer}>
           {!isLoaded ? (
-            <CircularProgress className={styles.spinner} />
+            <CircularProgress className={styles.centered} />
           ) : error ? (
             <Alert severity="error">{error}</Alert>
           ) : churchUnitDetails.events ? (
@@ -97,9 +97,15 @@ const info = {
     "Deacons Quorum": { parent: "Young Men", color: "var(--blue-curacao)" },
     "Relief Society": { parent: "Ward", color: "var(--rogue-pink)" },
     "Young Women": { parent: "Ward", color: "var(--old-geranium)" },
-    "16-17 Years Old": { parent: "Young Women", color: "var(--tiger-lilly)" },
-    "14-15 Years Old": { parent: "Young Women", color: "var(--porcelain-rose)" },
-    "12-13 Years Old": { parent: "Young Women", color: "var(--brewed-mustard)" },
+    "16-17 Year-old Young Women": { parent: "Young Women", color: "var(--tiger-lilly)" },
+    "14-15 Year-old Young Women": {
+      parent: "Young Women",
+      color: "var(--porcelain-rose)",
+    },
+    "12-13 Year-old Young Women": {
+      parent: "Young Women",
+      color: "var(--brewed-mustard)",
+    },
     Primary: { parent: "Ward", color: "var(--rosy-highlight)" },
   },
   events: [
@@ -168,6 +174,18 @@ const info = {
     },
     {
       id: 5,
+      title: "Group Date Night",
+      orgs: ["Priests Quorum", "16-17 Year-old Young Women"],
+      type: "Event",
+      doDisplayTime: true,
+      start: "2022-04-08T17:00:00.000",
+      finish: "2022-04-08T20:30:00.000",
+      expiration: "2022-04-08T20:30:00.000",
+      publicDescription: "Dinner, speed dating, and a miniature golf.",
+      location: "Chipotle, then Gulf N' More",
+    },
+    {
+      id: 6,
       title: "Mutual: Mission Prep Q&A",
       orgs: ["Young Women"],
       type: "Event",

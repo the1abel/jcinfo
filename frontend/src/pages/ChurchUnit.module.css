@@ -8,7 +8,7 @@ main > div {
   padding: .5rem;
   height: 100%;
 }
-main > div > :first-child:not(.spinner) {
+main > div > :first-child:not(.centered) {
   margin-top: 0;
 }
 
@@ -20,7 +20,7 @@ main > div > :first-child:not(.spinner) {
   flex-grow: 2;
 }
 
-.spinner {
+.centered {
   margin: 40%;
 }
 
