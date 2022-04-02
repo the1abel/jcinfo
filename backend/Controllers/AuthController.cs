@@ -81,7 +81,9 @@ public class AuthController : ControllerBase
 
     if (pwRes.HasFlag(PasswordVerificationResult.Success))
     {
+      #pragma warning disable CS8604 // Possible null reference argument.
       HttpContext.Session.SetString("personId", dbResPerson.Id);
+      #pragma warning restore CS8604 // Possible null reference argument.
       HttpContext.Session
         .SetString("permissions", JsonSerializer.Serialize(dbResPerson.Permissions));
       return CreatedAtAction(nameof(Permissions), new { email = person.Email },
@@ -117,7 +119,9 @@ public class AuthController : ControllerBase
     }
     string? personId = HttpContext.Session.GetString("personId");
 
-    if (dbResPerson is not null && dbResPerson.Id.Equals(personId))
+    if (dbResPerson is not null &&
+        dbResPerson.Id is not null &&
+        dbResPerson.Id.Equals(personId))
     {
       return Ok(new { result = "success", permissions = dbResPerson.Permissions });
     }

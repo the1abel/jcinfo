@@ -37,17 +37,23 @@ app.UseAuthorization();
 
 app.UseSession(); // must be before Mapcontrollers()
 
-// // custom middleware to require authentication for every path that is not "/"
-// app.Use(async (context, next) =>
-// {
-//   if (context.Request.Path != "/"
-//       && string.IsNullOrEmpty(context.Session.GetString("email")))
-//   {
-//     context.Response.Redirect("/");
-//   }
-//
-//   await next();
-// });
+// custom middleware to require authentication for every path that contains "/Create"
+app.Use(async (context, next) =>
+{
+  Console.WriteLine(context.Request.Method +
+      " : " + context.Request.Path);
+
+  if (context.Request.Path.ToString().Contains("/Create") &&
+      string.IsNullOrEmpty(context.Session.GetString("personId")))
+  {
+    context.Response.StatusCode = 400;
+    await context.Response.WriteAsJsonAsync(new { result = "notLoggedIn" });
+  }
+  else
+  {
+    await next(context);
+  }
+});
 
 app.MapControllers();
 

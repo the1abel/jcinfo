@@ -1,4 +1,4 @@
-﻿using backend.Models;
+using backend.Models;
 using backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.RegularExpressions;
@@ -70,13 +70,7 @@ namespace backend.Controllers
     [HttpPost("Create")]
     public async Task<IActionResult> Create(ChurchUnit newChurchUnit)
     {
-      string? personId = HttpContext.Session.GetString("personId");
-
-      if (personId is null)
-      {
-        return BadRequest(new { result = "notLoggedIn" });
-      }
-      else if (string.IsNullOrWhiteSpace(newChurchUnit.Name) ||
+      if (string.IsNullOrWhiteSpace(newChurchUnit.Name) ||
           newChurchUnit.Name.Length < 3)
       {
         return BadRequest(new { result = "error" });
