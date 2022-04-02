@@ -78,9 +78,13 @@ namespace backend.Services
     }
 
 
-    public async Task<String?> CreateEventAsync(string urlName, Event newEvent)
+    public async Task<String?> CreateEventAsync(
+        HttpContext httpContext, string urlName, Event newEvent)
     {
       newEvent.Id = ObjectId.GenerateNewId().ToString();
+      newEvent.CreatedBy = httpContext.Session.GetString("personEmail");
+      newEvent.CreatedAt = DateTime.Now;
+
       var update = Builders<ChurchUnit>.Update.Push<Event>(x => x.Events, newEvent);
 
       try
@@ -96,8 +100,12 @@ namespace backend.Services
     }
 
 
-    public async Task<String?> UpdateEventAsync(string urlName, Event eventToUdate)
+    public async Task<String?> UpdateEventAsync(
+        HttpContext httpContext, string urlName, Event eventToUdate)
     {
+      eventToUdate.LastUpdatedBy = httpContext.Session.GetString("personId");
+      eventToUdate.LastUpdatedAt = DateTime.Now;
+
       var filter = Builders<ChurchUnit>.Filter.And(
         Builders<ChurchUnit>.Filter.Where(x => x.UrlName == urlName),
         Builders<ChurchUnit>.Filter.ElemMatch(x => x.Events, e => e.Id == eventToUdate.Id)

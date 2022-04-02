@@ -128,7 +128,7 @@ namespace backend.Controllers
       }
 
       string? newChurchUnitOrErr =
-        await _churchUnitsService.CreateEventAsync(urlName, newEvent);
+        await _churchUnitsService.CreateEventAsync(HttpContext, urlName, newEvent);
 
       if (newChurchUnitOrErr is not null && newChurchUnitOrErr.Length == 24)
       {
@@ -151,7 +151,7 @@ namespace backend.Controllers
       }
 
       string? newChurchUnitOrErr =
-        await _churchUnitsService.UpdateEventAsync(urlName, eventToUpdate);
+        await _churchUnitsService.UpdateEventAsync(HttpContext, urlName, eventToUpdate);
 
       if (newChurchUnitOrErr is not null && newChurchUnitOrErr.Length == 24)
       {

@@ -51,6 +51,7 @@ public class AuthController : ControllerBase
     if (newPersonIdOrErr is not null && newPersonIdOrErr.Length == 24)
     {
       HttpContext.Session.SetString("personId", newPersonIdOrErr);
+      HttpContext.Session.SetString("personEmail", newPerson.Email);
       return CreatedAtAction(nameof(Permissions), new { email = newPerson.Email },
           new { result = "success", permissions = new { } });
     }
@@ -83,6 +84,7 @@ public class AuthController : ControllerBase
     {
       #pragma warning disable CS8604 // Possible null reference argument.
       HttpContext.Session.SetString("personId", dbResPerson.Id);
+      HttpContext.Session.SetString("personEmail", person.Email);
       #pragma warning restore CS8604 // Possible null reference argument.
       HttpContext.Session
         .SetString("permissions", JsonSerializer.Serialize(dbResPerson.Permissions));
