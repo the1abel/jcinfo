@@ -1,6 +1,5 @@
 ﻿using backend.Models;
 using MongoDB.Driver;
-using System.Text.Json;
 
 namespace backend.Services
 {

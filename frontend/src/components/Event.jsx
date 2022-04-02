@@ -53,6 +53,9 @@ function formatEventDateTimeRange(event) {
   output += " - ";
 
   if (!isSameDay && event.doDisplayTime) {
+    // TODO use RegEx to check for AM/a.m./a. m., `gi`, and if there are 2 matches and
+    // those 2 matches match each other, then .remove(match[0] + ' -', ' -')
+    // so that 2:00 PM - 3:00 PM is just 2:00 - 3:00 PM
     output += finish.toLocaleString(lang, { ...dayOpts, ...timeOpts });
   } else if (!isSameDay) {
     output += finish.toLocaleString(lang, dayOpts);

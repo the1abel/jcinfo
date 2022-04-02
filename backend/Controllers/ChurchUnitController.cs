@@ -1,4 +1,4 @@
-using backend.Models;
+﻿using backend.Models;
 using backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.RegularExpressions;
@@ -36,6 +36,8 @@ namespace backend.Controllers
       return name.ToLowerInvariant();
     }
 
+    // TODO move URL parameter to URL segment
+    // GET: api/ChurchUnit/IsUniqueName?name=...
     [HttpGet("IsUniqueName")]
     public async Task<IActionResult> IsUniqueName(string? name)
     {
@@ -45,6 +47,7 @@ namespace backend.Controllers
         return Ok(new { result = true, urlName = urlName });
       }
 
+      // TODO modify service to use projection to only return the urlName (or null)
       ChurchUnit? dbResChurchUnit = await _churchUnitsService.GetByUrlNameAsync(urlName);
 
       Boolean isUniqueUrlName = dbResChurchUnit is null;
@@ -52,7 +55,9 @@ namespace backend.Controllers
       return Ok(new { result = isUniqueUrlName, urlName = urlName });
     }
 
-    // GET: api/<ChurchUnitController>
+    // TODO move URL parameter to URL segment
+    // TODO modify service to use projection to return an array of only the urlName & Name
+    // GET: api/ChurchUnit/Find?searchString=...
     [HttpGet("Find")]
     public async Task<IActionResult> Find(string? searchString)
     {
@@ -66,7 +71,21 @@ namespace backend.Controllers
       }
     }
 
-    // POST api/<ChurchUnitController>
+    // GET: api/ChurchUnit/{urlName}/{includePastEvents}
+    [HttpGet("{urlName}/{includePastEvents}")]
+    public async Task<IActionResult> Get(string? urlName, bool? includePastEvents)
+    {
+      if (!string.IsNullOrWhiteSpace(urlName))
+      {
+        return Ok(await _churchUnitsService.GetByUrlNameAsync(urlName, includePastEvents));
+      }
+      else
+      {
+        return BadRequest(new { result = "error" });
+      }
+    }
+
+    // POST api/ChurchUnit/Create
     [HttpPost("Create")]
     public async Task<IActionResult> Create(ChurchUnit newChurchUnit)
     {
@@ -99,23 +118,63 @@ namespace backend.Controllers
       }
     }
 
-    //// PUT api/<ChurchUnitController>/name
+    // POST api/ChurchUnit/{urlName}/Event
+    [HttpPost("{urlName}/Event")]
+    public async Task<IActionResult> CreateEvent(string urlName, Event newEvent)
+    {
+      if (string.IsNullOrWhiteSpace(newEvent.Finish.ToString()))
+      {
+        return BadRequest(new { result = "error" });
+      }
+
+      string? newChurchUnitOrErr =
+        await _churchUnitsService.CreateEventAsync(urlName, newEvent);
+
+      if (newChurchUnitOrErr is not null && newChurchUnitOrErr.Length == 24)
+      {
+        return CreatedAtAction(nameof(Find), new { urlName = newEvent.Id },
+            new { result = "success", urlName = newEvent.Id });
+      }
+      else
+      {
+        return BadRequest(new { result = "error" });
+      }
+    }
+
+    // PUT api/ChurchUnit/{urlName}/Event
+    [HttpPut("{urlName}/Event")]
+    public async Task<IActionResult> UpdateEvent(string urlName, Event eventToUpdate)
+    {
+      if (string.IsNullOrWhiteSpace(eventToUpdate.Finish.ToString()))
+      {
+        return BadRequest(new { result = "error" });
+      }
+
+      string? newChurchUnitOrErr =
+        await _churchUnitsService.UpdateEventAsync(urlName, eventToUpdate);
+
+      if (newChurchUnitOrErr is not null && newChurchUnitOrErr.Length == 24)
+      {
+        return CreatedAtAction(nameof(Find), new { urlName = eventToUpdate.Id },
+            new { result = "success", urlName = eventToUpdate.Id });
+      }
+      else
+      {
+        return BadRequest(new { result = "error" });
+      }
+    }
+
+
+    //// PUT api/ChurchUnit/name
     //[HttpPut("{name}")]
     //public void Put(int name, [FromBody] string value)
     //{
     //}
 
-    //// DELETE api/<ChurchUnitController>/name
+    //// DELETE api/ChurchUnit/name
     //[HttpDelete("{name}")]
     //public void Delete(int name)
     //{
-    //}
-
-    //// GET api/<ChurchUnitController>/name
-    //[HttpGet("{name}")]
-    //public string Get(string name)
-    //{
-    //  return "value";
     //}
   }
 }

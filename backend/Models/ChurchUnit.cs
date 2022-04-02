@@ -11,6 +11,7 @@ namespace backend.Models
     public string? Name { get; set; } // Friendly Name
     public string? UrlName { get; set; }
     public string? ParentChurchUnitUrlName { get; set; }
+    public List<Event>? Events { get; set; }
     // TODO determine if serializing/deserializing to a `struct` (OrgDetails) is more
     // performant than to `dynamic`, and if so figure out the syntax/attribute (decorator)
     public Dictionary<string, dynamic>? Orgs { get; set; }

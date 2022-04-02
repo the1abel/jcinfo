@@ -16,7 +16,7 @@ export default function ChurchUnit(props) {
     setPageTitle(churchUnitUrlName);
 
     setTimeout(() => {
-      info.events.sort((a, b) => (a.expiration > b.expiration ? 1 : -1));
+      info.events.sort((a, b) => (a.start > b.start ? 1 : -1));
       setTopOrg(info.orgs);
       // const now = new Date();
       // info.events = info.events.filter((e) => {
@@ -51,10 +51,10 @@ export default function ChurchUnit(props) {
       <Header title={pageTitle} />
 
       <main>
-        <div className={styles.filterContainer}>
+        <section className={styles.filterContainer}>
           <h3>Filters</h3>
-        </div>
-        <div className={styles.eventsContainer}>
+        </section>
+        <section className={styles.eventsContainer}>
           {!isLoaded ? (
             <CircularProgress className={styles.centered} />
           ) : error ? (
@@ -66,8 +66,8 @@ export default function ChurchUnit(props) {
           ) : (
             setError("The data finished loading without errors, but there are no events.")
           )}
-        </div>
-        <div className={styles.actionsContainer}></div>
+        </section>
+        <section className={styles.actionsContainer}></section>
       </main>
     </React.Fragment>
   );
@@ -128,7 +128,7 @@ const info = {
       orgs: ["Ward"],
       type: "Event",
       doDisplayTime: true,
-      expiration: "2022-03-27T11:30:00.000",
+      finish: "2022-03-27T11:30:00.000",
       start: "2022-03-27T10:30:00.000",
       publicDescription: "This is great stuff!",
       privateDescription:
@@ -143,7 +143,6 @@ const info = {
       doDisplayTime: true,
       start: "2022-03-25T19:00:00.000",
       finish: "2022-03-25T21:00:00.000",
-      expiration: "2022-03-25T21:00:00.000",
       publicDescription: "Women, children, neighbors, everyone is welcome!",
       privateDescription: "Please invite others! :)",
       location: null,
@@ -156,7 +155,6 @@ const info = {
       doDisplayTime: true,
       start: "2022-03-31T19:00:00.000",
       finish: "2022-03-31T20:30:00.000",
-      expiration: "2022-03-31T20:30:00.000",
       publicDescription: "Friends & neighbors are welcome!",
       privateDescription: "Please invite others! :)",
       location: null,
@@ -167,7 +165,7 @@ const info = {
       orgs: ["Deacons Quorum", "Teachers Quorum"],
       type: "Event",
       start: "2022-03-30T19:00:00.000",
-      expiration: "2022-03-30T20:00:00.000",
+      finish: "2022-03-30T20:00:00.000",
       publicDescription: "Women, children, neighbors, everyone is welcome!",
       privateDescription: "Please invite others! :)",
       location: null,
@@ -180,7 +178,6 @@ const info = {
       doDisplayTime: true,
       start: "2022-04-08T17:00:00.000",
       finish: "2022-04-08T20:30:00.000",
-      expiration: "2022-04-08T20:30:00.000",
       publicDescription: "Dinner, speed dating, and a miniature golf.",
       location: "Chipotle, then Gulf N' More",
     },
@@ -191,7 +188,7 @@ const info = {
       type: "Event",
       doDisplayTime: true,
       start: "2022-03-30T19:00:00.000",
-      expiration: "2022-03-30T20:00:00.000",
+      finish: "2022-03-30T20:00:00.000",
       publicDescription: "Women, children, neighbors, everyone is welcome!",
       privateDescription: "Please invite others! :)",
       location: null,

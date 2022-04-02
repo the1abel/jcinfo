@@ -1,4 +1,5 @@
 ﻿using backend.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace backend.Services
@@ -18,24 +19,42 @@ namespace backend.Services
     // public async Task<ChurchUnit?> GetAsync(string id) =>
     //     await _churchUnitCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
-    public async Task<ChurchUnit?> GetByUrlNameAsync(string? urlName) =>
-        await _churchUnitCollection
-          .Find(x => x.UrlName == urlName).FirstOrDefaultAsync();
+
+    // TODO filter to only get events newer than a year, or older based on variable from admin
+    public async Task<ChurchUnit?> GetByUrlNameAsync(
+        string urlName, bool? includePastEvents = false)
+    {
+      DateTime yesterday = DateTime.Today.AddDays(-1);
+
+      var filterUrlName = Builders<ChurchUnit>.Filter.Where(x => x.UrlName == urlName);
+
+      var filter =
+        includePastEvents == true ?
+        filterUrlName :
+        Builders<ChurchUnit>.Filter.And(
+          filterUrlName,
+          Builders<ChurchUnit>.Filter.ElemMatch(x => x.Events, e => e.Finish > yesterday)
+        );
+
+      return await _churchUnitCollection.Find(filter).FirstOrDefaultAsync();
+    }
+
 
     // public async Task<List<ChurchUnit>?> FindAsync(string searchString)
     // {
     //   // await _churchUnitCollection.Find(x =>
     //   //     x.UrlName.Contains(searchString) || x.Name.Contains(searchString)).ToListAsync();
-
+    //
     //   FilterDefinition<ChurchUnit>? condition = Builders<ChurchUnit>.Filter
     //     .Regex("UrlName", new BsonRegularExpression(searchString));
-
+    //
     //   ProjectionDefinition<ChurchUnit>? fields =
     //     Builders<ChurchUnit>.Projection.Include(c => c.UrlName);
-
+    //
     //   return await _churchUnitCollection.Find(condition).Project<ChurchUnit>(fields)
     //     .ToListAsync();
     // }
+
 
     public async Task<String?> CreateAsync(ChurchUnit newChurchUnit)
     {
@@ -57,6 +76,47 @@ namespace backend.Services
       }
       return newChurchUnit.Id;
     }
+
+
+    public async Task<String?> CreateEventAsync(string urlName, Event newEvent)
+    {
+      newEvent.Id = ObjectId.GenerateNewId().ToString();
+      var update = Builders<ChurchUnit>.Update.Push<Event>(x => x.Events, newEvent);
+
+      try
+      {
+        await _churchUnitCollection.FindOneAndUpdateAsync(x => x.UrlName == urlName, update);
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex.Message);
+        return "error";
+      }
+      return newEvent.Id;
+    }
+
+
+    public async Task<String?> UpdateEventAsync(string urlName, Event eventToUdate)
+    {
+      var filter = Builders<ChurchUnit>.Filter.And(
+        Builders<ChurchUnit>.Filter.Where(x => x.UrlName == urlName),
+        Builders<ChurchUnit>.Filter.ElemMatch(x => x.Events, e => e.Id == eventToUdate.Id)
+      );
+
+      var update = Builders<ChurchUnit>.Update.Push<Event>(x => x.Events, eventToUdate);
+
+      try
+      {
+        await _churchUnitCollection.UpdateOneAsync(x => x.UrlName == urlName, update);
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex.Message);
+        return "error";
+      }
+      return eventToUdate.Id;
+    }
+
 
     // public async Task UpdateAsync(string id, ChurchUnit updatedChurchUnit) =>
     //     await _churchUnitCollection.ReplaceOneAsync(x => x.Id == id, updatedChurchUnit);
