@@ -1,0 +1,97 @@
+{
+  "name": "Rancho California Ward",
+  "urlName": "ranchocaliforniaward",
+  "orgs": {
+    "Ward": { "parent": "top", "color": "var(--grey-20)" },
+    "Elders Quorum": { "parent": "Ward", "color": "var(--purple-mountain-majesty)" },
+    "Young Men": { "parent": "Ward", "color": "var(--cornflower)" },
+    "Priests Quorum": { "parent": "Young Men", "color": "var(--soft-blue)" },
+    "Teachers Quorum": { "parent": "Young Men", "color": "var(--cornflower-blue)" },
+    "Deacons Quorum": { "parent": "Young Men", "color": "var(--blue-curacao)" },
+    "Relief Society": { "parent": "Ward", "color": "var(--rogue-pink)" },
+    "Young Women": { "parent": "Ward", "color": "var(--old-geranium)" },
+    "16-17 Year-old Young Women": { "parent": "Young Women", "color": "var(--tiger-lilly)" },
+    "14-15 Year-old Young Women": {
+      "parent": "Young Women",
+      "color": "var(--porcelain-rose)"
+    },
+    "12-13 Year-old Young Women": {
+      "parent": "Young Women",
+      "color": "var(--brewed-mustard)"
+    },
+    "Primary": { "parent": "Ward", "color": "var(--rosy-highlight)" }
+  },
+  "events": [
+    {
+      "title": "General Conference",
+      "orgs": ["Ward"],
+      "type": "Event",
+      "start": "2022-04-02T10:00:00.000-07:00",
+      "finish": "2022-04-03T16:00:00.000-07:00",
+      "publicDescription":
+        "Please remember to pray for personal revelation before, during, and after.",
+      "privateDescription": "Please invite family and friends to watch!",
+      "location": "www.churchofjesuschrist.org"
+    },
+    {
+      "title": "Sacrament Meeting",
+      "orgs": ["Ward"],
+      "isAnnouncement": false,
+      "doDisplayTime": true,
+      "finish": "2022-03-27T11:30:00.000-07:00",
+      "start": "2022-03-27T10:30:00.000-07:00",
+      "publicDescription": "This is great stuff!",
+      "privateDescription":
+        "Member notes go here, but probably doesn't apply to Sacrament Meeting."
+    },
+    {
+      "title": "Volleyball",
+      "orgs": ["Elders Quorum"],
+      "isAnnouncement": false,
+      "doDisplayTime": true,
+      "start": "2022-03-25T19:00:00.000-07:00",
+      "finish": "2022-03-25T21:00:00.000-07:00",
+      "publicDescription": "Women, children, neighbors, everyone is welcome!",
+      "privateDescription": "Please invite others! :)"
+    },
+    {
+      "title": "Crafting Your Testimony",
+      "orgs": ["Relief Society"],
+      "isAnnouncement": false,
+      "doDisplayTime": true,
+      "start": "2022-03-31T19:00:00.000-07:00",
+      "finish": "2022-03-31T20:30:00.000-07:00",
+      "publicDescription": "Friends & neighbors are welcome!",
+      "privateDescription": "Please invite others! :)"
+    },
+    {
+      "title": "Mutual: Return Missionary Q&A",
+      "orgs": ["Deacons Quorum", "Teachers Quorum"],
+      "isAnnouncement": false,
+      "start": "2022-03-30T19:00:00.000-07:00",
+      "finish": "2022-03-30T20:00:00.000-07:00",
+      "publicDescription": "Women, children, neighbors, everyone is welcome!",
+      "privateDescription": "Please invite others! :)"
+    },
+    {
+      "title": "Group Date Night",
+      "orgs": ["Priests Quorum", "16-17 Year-old Young Women"],
+      "isAnnouncement": false,
+      "doDisplayTime": true,
+      "start": "2022-04-08T17:00:00.000-07:00",
+      "finish": "2022-04-08T20:30:00.000-07:00",
+      "publicDescription": "Dinner, speed dating, and a miniature golf.",
+      "location": "Chipotle, then Gulf N' More"
+    },
+    {
+      "title": "Mutual: Mission Prep Q&A",
+      "orgs": ["Young Women"],
+      "isAnnouncement": false,
+      "doDisplayTime": true,
+      "start": "2022-03-30T19:00:00.000-07:00",
+      "finish": "2022-03-30T20:00:00.000-07:00",
+      "publicDescription": "Women, children, neighbors, everyone is welcome!",
+      "privateDescription": "Please invite others! :)"
+    }
+  ]
+}
