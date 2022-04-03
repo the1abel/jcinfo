@@ -4,48 +4,56 @@ import React, { useState, useEffect } from "react";
 import styles from "./ChurchUnit.module.css";
 import { useParams } from "react-router-dom";
 import { Alert, CircularProgress } from "@mui/material";
+import { request } from "../utils";
 
 export default function ChurchUnit(props) {
   const { churchUnitUrlName } = useParams();
-  const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAdminUser, setIsAdminUser] = useState(false);
   const [pageTitle, setPageTitle] = useState("");
   const [churchUnitDetails, setChurchUnitDetails] = useState(null);
+  const [includePastEvents, setIncludePastEvents] = useState(false);
 
   useEffect(() => {
-    setPageTitle(churchUnitUrlName);
+    const url =
+      "/api/ChurchUnit/" + churchUnitUrlName + (includePastEvents ? "?past=true" : "");
 
-    setTimeout(() => {
-      const info = {};
-      info.events.sort((a, b) => (a.start > b.start ? 1 : -1));
-      setTopOrg(info.orgs);
-      // const now = new Date();
-      // info.events = info.events.filter((e) => {
-      //   const twoHoursAfterStart = new Date(e.start);
-      //   twoHoursAfterStart.setHours(twoHoursAfterStart.getHours() + 2);
-      //   if (e.finish && e.finish > now) {
-      //     return true;
-      //   } else if (!e.finish && twoHoursAfterStart > now) {
-      //     return true;
-      //   } else {
-      //     return false;
-      //   }
-      // });
+    request(url)
+      .then((churchUnit) => {
+        console.log("initial", churchUnit); // DEBUG
+        setPageTitle(churchUnit.name);
+        setTopOrg(churchUnit.orgs);
+        localStorage.setItem(
+          "lastLocation",
+          window.location.href.replace(window.location.origin, "")
+        );
 
-      if (!info.events.length) {
-        info.events.push({
-          id: 0,
-          title: "There are no events nor announcements to see.",
-          orgs: [info.orgs.top],
-        });
-      }
+        if (!includePastEvents) {
+          // DEBUG
+          // const today = new Date().toLocaleDateString("sv"); // Sweden locale is ISO format
+          // churchUnit.events = churchUnit.events.filter((e) => e.finish >= today);
+        }
 
-      setPageTitle(info.name);
-      setChurchUnitDetails(info);
-      setIsLoaded(true);
-      setError(false);
-    }, 1000);
-  }, [churchUnitUrlName]);
+        if (churchUnit.events?.length) {
+          churchUnit.events.sort((a, b) => (a.start > b.start ? 1 : -1));
+        } else {
+          churchUnit.events = [
+            {
+              id: 0,
+              title: "There are no published events nor announcements.",
+              orgs: [churchUnit.orgs.top],
+            },
+          ];
+        }
+
+        console.log("final", churchUnit); // DEBUG
+        setChurchUnitDetails(churchUnit);
+        setError(null);
+      })
+      .catch((err) => setError(err.toString()))
+      .finally(() => setIsLoading(false));
+  }, [churchUnitUrlName, includePastEvents]);
 
   return (
     <React.Fragment>
@@ -56,10 +64,10 @@ export default function ChurchUnit(props) {
           <h3>Filters</h3>
         </section>
         <section className={styles.eventsContainer}>
-          {!isLoaded ? (
-            <CircularProgress className={styles.centered} />
-          ) : error ? (
+          {error ? (
             <Alert severity="error">{error}</Alert>
+          ) : isLoading ? (
+            <CircularProgress className={styles.centered} />
           ) : churchUnitDetails.events ? (
             churchUnitDetails.events.map((event) => (
               <Event key={event.id} event={event} unitOrgs={churchUnitDetails.orgs} />
@@ -76,7 +84,7 @@ export default function ChurchUnit(props) {
 
 function setTopOrg(unitOrgs) {
   for (const org in unitOrgs) {
-    if (unitOrgs[org].parent.toLowerCase() === "top") {
+    if (unitOrgs[org].Parent.toLowerCase() === "top") {
       unitOrgs.top = org;
       return;
     }

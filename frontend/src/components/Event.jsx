@@ -4,7 +4,7 @@ import styles from "./Event.module.css";
 export default function Event(props) {
   const { event, unitOrgs } = props;
 
-  const colors = event.orgs.map((org) => unitOrgs[org]?.color || "var(--grey-20)");
+  const colors = event.orgs.map((org) => unitOrgs[org]?.Color || "var(--grey-20)");
 
   const background =
     colors.length === 1 ? colors[0] : `linear-gradient(to right, ${colors.join(",")})`;
@@ -17,7 +17,8 @@ export default function Event(props) {
           <span className={styles.orgTitle}>({event.orgs.join(", ")})</span>
         )}
       </h3>
-      <h4>{formatEventDateTimeRange(event)}</h4>
+      <h4>{!event.isAnnouncement && formatEventDateTimeRange(event)}</h4>
+      <h4>{event.headline}</h4>
     </div>
   );
 }
@@ -25,7 +26,7 @@ export default function Event(props) {
 const lang = navigator.language;
 
 function formatEventDateTimeRange(event) {
-  if (event.type !== "Event" || !event.start) {
+  if (event.isAnnouncement) {
     return null;
   }
 

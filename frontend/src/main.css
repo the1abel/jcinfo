@@ -42,7 +42,7 @@ main {
   flex-grow: 1;
   display: flex;
   justify-content: center; /* horizontal */
-  align-items: center; /* vertical */
+  /*align-items: center; -- vertical */
   background-color: var(--blue-10);
 }
 

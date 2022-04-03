@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import styles from "./Landing.module.css";
 import { Alert, Button, InputAdornment, TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { request } from "../utils";
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -11,15 +12,14 @@ export default function Landing() {
 
   const goToInfo = (ev) => {
     ev.preventDefault();
-    const unit = document.getElementById("unitName").value;
+    const name = document.getElementById("unitName").value;
 
-    fetch("api/ChurchUnit/IsUniqueName?name=" + unit)
-      .then((resStream) => resStream.json())
+    request("api/ChurchUnit/IsUniqueName/" + name)
       .then((res) => {
         if (!res.result) navigate("/" + res.urlName);
         else
           setNavigateError(
-            "There is no Church Unit by that name.  You can log in and crete it."
+            "There is no Church Unit by that name.  You can log in and create it."
           );
       });
   };
