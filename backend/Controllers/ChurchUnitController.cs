@@ -23,7 +23,7 @@ namespace backend.Controllers
       _peopleService = peopleService;
     }
 
-    private string ConvertToUrlName(string? name)
+    private static string ConvertToUrlName(string? name)
     {
       if (string.IsNullOrWhiteSpace(name))
       {
@@ -36,9 +36,8 @@ namespace backend.Controllers
       return name.ToLowerInvariant();
     }
 
-    // TODO move URL parameter to URL segment
     // GET: api/ChurchUnit/IsUniqueName?name=...
-    [HttpGet("IsUniqueName")]
+    [HttpGet("IsUniqueName/{name}")]
     public async Task<IActionResult> IsUniqueName(string? name)
     {
       string urlName = ConvertToUrlName(name);
@@ -47,18 +46,14 @@ namespace backend.Controllers
         return Ok(new { result = true, urlName = urlName });
       }
 
-      // TODO modify service to use projection to only return the urlName (or null)
-      ChurchUnit? dbResChurchUnit = await _churchUnitsService.GetByUrlNameAsync(urlName);
-
-      Boolean isUniqueUrlName = dbResChurchUnit is null;
+      bool isUniqueUrlName = await _churchUnitsService.IsUniqueName(urlName);
 
       return Ok(new { result = isUniqueUrlName, urlName = urlName });
     }
 
-    // TODO move URL parameter to URL segment
     // TODO modify service to use projection to return an array of only the urlName & Name
-    // GET: api/ChurchUnit/Find?searchString=...
-    [HttpGet("Find")]
+    // GET: api/ChurchUnit/Find/{searchString}
+    [HttpGet("Find/{searchString}")]
     public async Task<IActionResult> Find(string? searchString)
     {
       if (!string.IsNullOrWhiteSpace(searchString))
@@ -71,10 +66,13 @@ namespace backend.Controllers
       }
     }
 
-    // GET: api/ChurchUnit/{urlName}/{includePastEvents}
-    [HttpGet("{urlName}/{includePastEvents}")]
-    public async Task<IActionResult> Get(string? urlName, bool? includePastEvents)
+    // GET: api/ChurchUnit/{urlName}?past=true|any
+    [HttpGet("{urlName}")]
+    public async Task<IActionResult> Get(string? urlName, string? past)
     {
+      urlName = ConvertToUrlName(urlName);
+      bool includePastEvents = past == "true";
+
       if (!string.IsNullOrWhiteSpace(urlName))
       {
         return Ok(await _churchUnitsService.GetByUrlNameAsync(urlName, includePastEvents));

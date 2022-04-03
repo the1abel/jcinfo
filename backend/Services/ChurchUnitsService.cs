@@ -20,23 +20,40 @@ namespace backend.Services
     //     await _churchUnitCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
 
-    // TODO filter to only get events newer than a year, or older based on variable from admin
-    public async Task<ChurchUnit?> GetByUrlNameAsync(
-        string urlName, bool? includePastEvents = false)
+    public async Task<bool> IsUniqueName(string urlName)
     {
-      DateTime yesterday = DateTime.Today.AddDays(-1);
+      var projection = Builders<ChurchUnit>.Projection.Include(x => x.Id);
+
+      var id = await _churchUnitCollection
+        .Find(x => x.UrlName == urlName)
+        .Project(projection)
+        .FirstOrDefaultAsync();
+
+      return id is null;
+    }
+
+
+    public async Task<ChurchUnit?> GetByUrlNameAsync(
+        string urlName, bool includePastEvents = false)
+    {
 
       var filterUrlName = Builders<ChurchUnit>.Filter.Where(x => x.UrlName == urlName);
 
-      var filter =
-        includePastEvents == true ?
-        filterUrlName :
-        Builders<ChurchUnit>.Filter.And(
-          filterUrlName,
-          Builders<ChurchUnit>.Filter.ElemMatch(x => x.Events, e => e.Finish > yesterday)
-        );
+      // TODO figure out how to filter events by date
+      // var yesterday = DateTime.Today.AddDays(-1);
+      //
+      //var filter =
+      //  includePastEvents ?
+      //  filterUrlName :
+      //  Builders<ChurchUnit>.Filter.And(
+      //    filterUrlName,
+      //    Builders<ChurchUnit>.Filter.Or(
+      //      Builders<ChurchUnit>.Filter.ElemMatch(x => x.Events, e => e.Finish > yesterday),
+      //      Builders<ChurchUnit>.Filter.Where(x => x.Events == null)
+      //    )
+      //  );
 
-      return await _churchUnitCollection.Find(filter).FirstOrDefaultAsync();
+      return await _churchUnitCollection.Find(filterUrlName).FirstOrDefaultAsync();
     }
 
 
@@ -84,12 +101,13 @@ namespace backend.Services
       newEvent.Id = ObjectId.GenerateNewId().ToString();
       newEvent.CreatedBy = httpContext.Session.GetString("personEmail");
       newEvent.CreatedAt = DateTime.Now;
+      newEvent = SetStartAndFinishDates(newEvent);
 
       var update = Builders<ChurchUnit>.Update.Push<Event>(x => x.Events, newEvent);
 
       try
       {
-        await _churchUnitCollection.FindOneAndUpdateAsync(x => x.UrlName == urlName, update);
+        await _churchUnitCollection.UpdateOneAsync(x => x.UrlName == urlName, update);
       }
       catch (Exception ex)
       {
@@ -101,30 +119,52 @@ namespace backend.Services
 
 
     public async Task<String?> UpdateEventAsync(
-        HttpContext httpContext, string urlName, Event eventToUdate)
+        HttpContext httpContext, string urlName, Event eventToUpdate)
     {
-      eventToUdate.LastUpdatedBy = httpContext.Session.GetString("personId");
-      eventToUdate.LastUpdatedAt = DateTime.Now;
+      eventToUpdate.LastUpdatedBy = httpContext.Session.GetString("personId");
+      eventToUpdate.LastUpdatedAt = DateTime.Now;
+      eventToUpdate = SetStartAndFinishDates(eventToUpdate);
 
       var filter = Builders<ChurchUnit>.Filter.And(
         Builders<ChurchUnit>.Filter.Where(x => x.UrlName == urlName),
-        Builders<ChurchUnit>.Filter.ElemMatch(x => x.Events, e => e.Id == eventToUdate.Id)
+        Builders<ChurchUnit>.Filter.ElemMatch(x => x.Events, e => e.Id == eventToUpdate.Id)
       );
 
-      var update = Builders<ChurchUnit>.Update.Push<Event>(x => x.Events, eventToUdate);
+      var update = Builders<ChurchUnit>.Update.Push<Event>(x => x.Events, eventToUpdate);
 
+      // ChurchUnit.Events.Start
       try
       {
-        await _churchUnitCollection.UpdateOneAsync(x => x.UrlName == urlName, update);
+        await _churchUnitCollection
+          .UpdateOneAsync(x => x.UrlName == urlName, update);
       }
       catch (Exception ex)
       {
         Console.WriteLine(ex.Message);
         return "error";
       }
-      return eventToUdate.Id;
+      return eventToUpdate.Id;
     }
 
+
+    private static Event SetStartAndFinishDates(Event e)
+    {
+      if (e.Start is null && e.Finish is not null)
+      {
+        e.Start = e.Finish;
+      }
+      else if (e.Finish is null && e.Start is not null)
+      {
+        e.Finish = e.Start;
+      }
+      else if (e.Start is null && e.Finish is null)
+      {
+        e.Start = DateTime.Now.AddDays(7);
+        e.Finish = DateTime.Now.AddDays(7).AddHours(1);
+      }
+
+      return e;
+    }
 
     // public async Task UpdateAsync(string id, ChurchUnit updatedChurchUnit) =>
     //     await _churchUnitCollection.ReplaceOneAsync(x => x.Id == id, updatedChurchUnit);
