@@ -1,8 +1,15 @@
-import React from "react";
+import EventUpsertModal from "./EventUpsertModal";
+import React, { useState } from "react";
 import styles from "./Event.module.css";
+import { Button } from "@mui/material";
 
 export default function Event(props) {
-  const { event, unitOrgs } = props;
+  const { canEdit, canViewPrivate, event, unitOrgs } = props;
+
+  const [isExpanded, setIsExpanded] = useState(false);
+  const handleExpand = () => setIsExpanded(!isExpanded);
+
+  const [eventUpsertModalIsOpen, openEventUpsertModal] = useState(false);
 
   const colors = event.orgs.map((org) => unitOrgs[org]?.Color || "var(--grey-20)");
 
@@ -10,15 +17,36 @@ export default function Event(props) {
     colors.length === 1 ? colors[0] : `linear-gradient(to right, ${colors.join(",")})`;
 
   return (
-    <div style={{ background }} className={styles.event}>
+    <div style={{ background }} className={styles.event} onClick={handleExpand}>
       <h3>
         {event.title}
         {event.orgs[0] !== unitOrgs.top && (
           <span className={styles.orgTitle}>({event.orgs.join(", ")})</span>
         )}
+        {canEdit && (
+          // TODO replace edit button with icon
+          <Button onClick={() => openEventUpsertModal(true)} className={styles.editBtn}>
+            Edit
+          </Button>
+        )}
       </h3>
       <h4>{!event.isAnnouncement && formatEventDateTimeRange(event)}</h4>
       <h4>{event.headline}</h4>
+      {isExpanded && (
+        <div>
+          {event.location && <p>Location: {event.location}</p>}
+          {event.publicDescription && <p>{event.publicDescription}</p>}
+          {canViewPrivate && event.membersOnlyDescription && (
+            <p>{event.membersOnlyDescription}</p>
+          )}
+        </div>
+      )}
+
+      <EventUpsertModal
+        event={event}
+        isOpen={eventUpsertModalIsOpen}
+        onClose={() => openEventUpsertModal(false)}
+      />
     </div>
   );
 }

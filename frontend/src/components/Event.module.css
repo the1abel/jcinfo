@@ -12,7 +12,15 @@
   font-weight: 100;
 }
 
+.event h3 {
+  display: flex;
+}
+
 .orgTitle {
   margin-left: 0.5rem;
   font-size: 0.95rem;
+}
+
+button.editBtn {
+  margin-left: auto;
 }

@@ -1,27 +1,59 @@
 import Event from "../components/Event";
 import Header from "../components/Header";
-import React, { useState, useEffect } from "react";
+import PermissionsContext from "../store/PermissionsContext";
+import React, { useContext, useState, useEffect } from "react";
 import styles from "./ChurchUnit.module.css";
 import { useParams } from "react-router-dom";
-import { Alert, CircularProgress } from "@mui/material";
+import { Alert, Button, CircularProgress } from "@mui/material";
 import { request } from "../utils";
 
-export default function ChurchUnit(props) {
+export default function ChurchUnit() {
+  const permissionsCtx = useContext(PermissionsContext);
+  const permissions = permissionsCtx.permissions;
+
   const { churchUnitUrlName } = useParams();
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAdminUser, setIsAdminUser] = useState(false);
   const [pageTitle, setPageTitle] = useState("");
   const [churchUnitDetails, setChurchUnitDetails] = useState(null);
-  const [includePastEvents, setIncludePastEvents] = useState(false);
+  const [eventsToDisplay, setEventsToDisplay] = useState(null);
+  const [showPastEvents, setShowPastEvents] = useState(false);
 
+  // TODO refine permissions to organizational level
+  // const [churchUnitPermissions, setChurchUnitPermissions] = useState(null);
+  const [canViewPrivate, setCanViewPrivate] = useState(false);
+  const [canEdit, setCanEdit] = useState(false);
+
+  // permissions
+  useEffect(() => {
+    const churchUnitPermissions = permissions ? permissions[churchUnitUrlName] : null;
+
+    setCanEdit(false);
+    setCanViewPrivate(false);
+
+    if (churchUnitPermissions) {
+      for (const org in churchUnitPermissions) {
+        const p = churchUnitPermissions[org];
+        if (p === "admin" || p === "edit") {
+          setCanEdit(true);
+          setCanViewPrivate(true);
+          break;
+        } else if (p === "viewPrivate") {
+          setCanViewPrivate(true);
+        }
+      }
+    }
+
+    // setChurchUnitPermissions(churchUnitPermissions);
+  }, [permissions, churchUnitUrlName]);
+
+  //  fetch Church Unit details
   useEffect(() => {
     const url =
-      "/api/ChurchUnit/" + churchUnitUrlName + (includePastEvents ? "?past=true" : "");
+      "/api/ChurchUnit/" + churchUnitUrlName + (showPastEvents ? "?past=true" : "");
 
     request(url)
       .then((churchUnit) => {
-        console.log("initial", churchUnit); // DEBUG
         setPageTitle(churchUnit.name);
         setTopOrg(churchUnit.orgs);
         localStorage.setItem(
@@ -29,31 +61,38 @@ export default function ChurchUnit(props) {
           window.location.href.replace(window.location.origin, "")
         );
 
-        if (!includePastEvents) {
-          // DEBUG
-          // const today = new Date().toLocaleDateString("sv"); // Sweden locale is ISO format
-          // churchUnit.events = churchUnit.events.filter((e) => e.finish >= today);
-        }
-
+        // sort events
         if (churchUnit.events?.length) {
           churchUnit.events.sort((a, b) => (a.start > b.start ? 1 : -1));
-        } else {
-          churchUnit.events = [
-            {
-              id: 0,
-              title: "There are no published events nor announcements.",
-              orgs: [churchUnit.orgs.top],
-            },
-          ];
         }
 
-        console.log("final", churchUnit); // DEBUG
         setChurchUnitDetails(churchUnit);
         setError(null);
       })
       .catch((err) => setError(err.toString()))
       .finally(() => setIsLoading(false));
-  }, [churchUnitUrlName, includePastEvents]);
+  }, [churchUnitUrlName, showPastEvents]);
+
+  // filter events
+  useEffect(() => {
+    if (churchUnitDetails?.events) {
+      const today = new Date().toLocaleDateString("sv"); // Sweden locale is ISO format
+
+      setEventsToDisplay(
+        churchUnitDetails.events.filter((e) => {
+          if (e.finish < today && (!canEdit || (canEdit && !showPastEvents))) {
+            // filter past events
+            return false;
+          } else if (!canViewPrivate && e.isForMembersOnly) {
+            // filter private events
+            return false;
+          } else {
+            return true;
+          }
+        })
+      );
+    }
+  }, [canEdit, canViewPrivate, churchUnitDetails, showPastEvents]);
 
   return (
     <React.Fragment>
@@ -68,15 +107,39 @@ export default function ChurchUnit(props) {
             <Alert severity="error">{error}</Alert>
           ) : isLoading ? (
             <CircularProgress className={styles.centered} />
-          ) : churchUnitDetails.events ? (
-            churchUnitDetails.events.map((event) => (
-              <Event key={event.id} event={event} unitOrgs={churchUnitDetails.orgs} />
+          ) : eventsToDisplay ? (
+            eventsToDisplay.map((event) => (
+              <Event
+                key={event.id}
+                event={event}
+                unitOrgs={churchUnitDetails.orgs}
+                canEdit={canEdit}
+                canViewPrivate={canViewPrivate}
+              />
             ))
           ) : (
-            setError("The data finished loading without errors, but there are no events.")
+            <Event
+              key={0}
+              event={{
+                title: "There are no published events nor announcements.",
+                isAnnouncement: true,
+                orgs: [churchUnitDetails.orgs.top],
+              }}
+              unitOrgs={churchUnitDetails.orgs}
+            />
           )}
         </section>
-        <section className={styles.actionsContainer}></section>
+        <section className={styles.actionsContainer}>
+          {canEdit && (
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => setShowPastEvents(!showPastEvents)}
+            >
+              {showPastEvents ? "Hide" : "Show"} past events
+            </Button>
+          )}
+        </section>
       </main>
     </React.Fragment>
   );

@@ -13,11 +13,11 @@ main > div > :first-child:not(.centered) {
 }
 
 .filterContainer {
-  flex-grow: 1;
+  padding: .5rem;
 }
 
 .eventsContainer {
-  flex-grow: 2;
+  flex-grow: 1;
 }
 
 .centered {
@@ -25,5 +25,5 @@ main > div > :first-child:not(.centered) {
 }
 
 .actionsContainer {
-  flex-grow: 1;
+  padding: .5rem;
 }
