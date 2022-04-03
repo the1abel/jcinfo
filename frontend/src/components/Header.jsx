@@ -15,6 +15,8 @@ export default function Header(props) {
   const [logInModalIsOpen, openLogInModal] = useState(false);
   const [createUnitModalIsOpen, openCreateUnitModal] = useState(false);
 
+  const clearLastLocation = () => localStorage.removeItem('lastLocation');
+
   const handleLogout = (ev) => {
     permissionsCtx.setPermissions(null);
     localStorage.removeItem("stayLoggedInEmail");
@@ -32,7 +34,7 @@ export default function Header(props) {
     <React.Fragment>
       <header className={styles.header}>
         <h2>
-          <Link to="/">J.C. Info.</Link>
+          <Link to="/" onClick={clearLastLocation}>J.C. Info.</Link>
         </h2>
         <h2>{props.title}</h2>
         <Button

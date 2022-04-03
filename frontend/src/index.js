@@ -1,9 +1,14 @@
-import { render } from "react-dom";
+import ChurchUnit from "./pages/ChurchUnit";
+import Colors from "./pages/Colors";
+import Landing from "./pages/Landing";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PermissionsContextProvider } from "./store/PermissionsContext";
-import Colors from "./pages/Colors";
-import ChurchUnit from "./pages/ChurchUnit";
-import Landing from "./pages/Landing";
+import { render } from "react-dom";
+
+const lastLocation = localStorage.getItem("lastLocation");
+if (lastLocation && !window.location.href.includes(lastLocation)) {
+  window.location.href = window.location.origin + lastLocation;
+}
 
 window.addEventListener('beforeunload', () => {
   if (!localStorage.getItem('stayLoggedInEmail')) {
