@@ -1,5 +1,6 @@
 @import "../main.css";
 
+/* TODO apply box shadow that increases when the Event is expanded */
 .event {
   width: 100%;
   border: 1px solid lightgrey;

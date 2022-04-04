@@ -25,51 +25,51 @@ namespace backend.Models
         {
           {
             "Ward",
-            new { Parent = "top", Color = "var(--grey-20)" }
-          },
-          {
-            "Elders Quorum",
-            new { Parent = "Ward", Color = "var(--purple-mountain-majesty)" }
-          },
-          {
-            "Young Men",
-            new { Parent = "Ward", Color = "var(--cornflower)" }
-          },
-          {
-            "Priests Quorum",
-            new { Parent = "Young Men", Color = "var(--soft-blue)"
-          } },
-          {
-            "Teachers Quorum",
-            new { Parent = "Young Men", Color = "var(--cornflower-blue)" }
-          },
-          {
-            "Deacons Quorum",
-            new { Parent = "Young Men", Color = "var(--blue-curacao)" }
+            new { Parent = "top", Color = "var(--grey-20)" , Order = 1 }
           },
           {
             "Relief Society",
-            new { Parent = "Ward", Color = "var(--rogue-pink)" }
+            new { Parent = "Ward", Color = "var(--rogue-pink)" , Order = 2 }
+          },
+          {
+            "Elders Quorum",
+            new { Parent = "Ward", Color = "var(--purple-mountain-majesty)" , Order = 3 }
+          },
+          {
+            "Young Men",
+            new { Parent = "Ward", Color = "var(--cornflower)" , Order = 4 }
+          },
+          {
+            "Priests Quorum",
+            new { Parent = "Young Men", Color = "var(--soft-blue)", Order = 5 }
+          },
+          {
+            "Teachers Quorum",
+            new { Parent = "Young Men", Color = "var(--cornflower-blue)" , Order = 6 }
+          },
+          {
+            "Deacons Quorum",
+            new { Parent = "Young Men", Color = "var(--blue-curacao)" , Order = 7 }
           },
           {
             "Young Women",
-            new { Parent = "Ward", Color = "var(--old-geranium)" }
+            new { Parent = "Ward", Color = "var(--old-geranium)" , Order = 8 }
           },
           {
             "16-17 Year-old Young Women",
-            new { Parent = "Young Women", Color = "var(--tiger-lilly)" }
+            new { Parent = "Young Women", Color = "var(--tiger-lilly)" , Order = 9 }
           },
           {
             "14-15 Year-old Young Women",
-            new { Parent = "Young Women", Color = "var(--porcelain-rose)" }
+            new { Parent = "Young Women", Color = "var(--porcelain-rose)" , Order = 10 }
           },
           {
             "12-13 Year-old Young Women",
-            new { Parent = "Young Women", Color = "var(--brewed-mustard)" }
+            new { Parent = "Young Women", Color = "var(--brewed-mustard)" , Order = 11 }
           },
           {
             "Primary",
-            new { Parent = "Ward", Color = "var(--rosy-highlight)" }
+            new { Parent = "Ward", Color = "var(--rosy-highlight)" , Order = 12 }
           },
         };
     }
@@ -79,5 +79,6 @@ namespace backend.Models
   {
     public string? Parent { get; set; }
     public string? Color { get; set; }
+    public int? Order { get; set; }
   }
 }

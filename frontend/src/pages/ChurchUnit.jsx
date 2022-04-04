@@ -1,5 +1,6 @@
 import Event from "../components/Event";
 import Header from "../components/Header";
+import OrgSelector from "../components/OrgSelector";
 import PermissionsContext from "../store/PermissionsContext";
 import React, { useContext, useState, useEffect } from "react";
 import styles from "./ChurchUnit.module.css";
@@ -18,6 +19,7 @@ export default function ChurchUnit() {
   const [churchUnitDetails, setChurchUnitDetails] = useState(null);
   const [eventsToDisplay, setEventsToDisplay] = useState(null);
   const [showPastEvents, setShowPastEvents] = useState(false);
+  const [selectedOrgs, setSelectedOrgs] = useState({});
 
   // TODO refine permissions to organizational level
   // const [churchUnitPermissions, setChurchUnitPermissions] = useState(null);
@@ -49,8 +51,9 @@ export default function ChurchUnit() {
 
   //  fetch Church Unit details
   useEffect(() => {
-    const url =
-      "/api/ChurchUnit/" + churchUnitUrlName + (showPastEvents ? "?past=true" : "");
+    const url = "/api/ChurchUnit/" + churchUnitUrlName;
+      // TODO implement filter past events in backend service's query
+      //  + (showPastEvents ? "?past=true" : "");
 
     request(url)
       .then((churchUnit) => {
@@ -66,12 +69,15 @@ export default function ChurchUnit() {
           churchUnit.events.sort((a, b) => (a.start > b.start ? 1 : -1));
         }
 
+        // TODO sort orgs by .Order field
+
+        setSelectedOrgs(churchUnit.orgs);
         setChurchUnitDetails(churchUnit);
         setError(null);
       })
       .catch((err) => setError(err.toString()))
       .finally(() => setIsLoading(false));
-  }, [churchUnitUrlName, showPastEvents]);
+  }, [churchUnitUrlName]);
 
   // filter events
   useEffect(() => {
@@ -86,13 +92,16 @@ export default function ChurchUnit() {
           } else if (!canViewPrivate && e.isForMembersOnly) {
             // filter private events
             return false;
+          } else if (!hasSelectedOrg(e.orgs, selectedOrgs)) {
+            // filter selected orgs
+            return false;
           } else {
             return true;
           }
         })
       );
     }
-  }, [canEdit, canViewPrivate, churchUnitDetails, showPastEvents]);
+  }, [canEdit, canViewPrivate, churchUnitDetails, selectedOrgs, showPastEvents]);
 
   return (
     <React.Fragment>
@@ -100,7 +109,9 @@ export default function ChurchUnit() {
 
       <main>
         <section className={styles.filterContainer}>
-          <h3>Filters</h3>
+          {churchUnitDetails?.orgs && (
+            <OrgSelector orgs={churchUnitDetails.orgs} updateList={setSelectedOrgs} />
+          )}
         </section>
         <section className={styles.eventsContainer}>
           {error ? (
@@ -152,4 +163,13 @@ function setTopOrg(unitOrgs) {
       return;
     }
   }
+}
+
+function hasSelectedOrg(eventOrgs, selectedOrgs) {
+  for (const o of eventOrgs) {
+    if (selectedOrgs[o]) {
+      return true;
+    }
+  }
+  return false;
 }
