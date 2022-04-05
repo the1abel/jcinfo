@@ -27,3 +27,12 @@ main > div > :first-child:not(.centered) {
 .actionsContainer {
   padding: .5rem;
 }
+
+.actionsContainer > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.actionsContainer > div > * {
+  margin-bottom: .5rem;
+}

@@ -1,0 +1,23 @@
+@import "./modal.module.css";
+
+div.orgSelector {
+  min-width: 300px;
+}
+
+div.box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.hidden {
+  display: none;
+}
+
+.start {
+  margin-top: 0.5rem;
+}
+
+.dateTimeSpacer {
+  padding: 0.5rem;
+}

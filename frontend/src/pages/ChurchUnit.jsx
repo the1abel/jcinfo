@@ -1,4 +1,5 @@
 import Event from "../components/Event";
+import EventUpsertModal from "../components/EventUpsertModal";
 import Header from "../components/Header";
 import OrgSelector from "../components/OrgSelector";
 import PermissionsContext from "../store/PermissionsContext";
@@ -20,6 +21,7 @@ export default function ChurchUnit() {
   const [eventsToDisplay, setEventsToDisplay] = useState(null);
   const [showPastEvents, setShowPastEvents] = useState(false);
   const [selectedOrgs, setSelectedOrgs] = useState({});
+  const [newEventModalIsOpen, openNewEventModal] = useState(false);
 
   // TODO refine permissions to organizational level
   // const [churchUnitPermissions, setChurchUnitPermissions] = useState(null);
@@ -52,8 +54,8 @@ export default function ChurchUnit() {
   //  fetch Church Unit details
   useEffect(() => {
     const url = "/api/ChurchUnit/" + churchUnitUrlName;
-      // TODO implement filter past events in backend service's query
-      //  + (showPastEvents ? "?past=true" : "");
+    // TODO implement filter past events in backend service's query
+    //  + (showPastEvents ? "?past=true" : "");
 
     request(url)
       .then((churchUnit) => {
@@ -103,6 +105,24 @@ export default function ChurchUnit() {
     }
   }, [canEdit, canViewPrivate, churchUnitDetails, selectedOrgs, showPastEvents]);
 
+  const handleAddEvent = (newEvent) => {
+    const newChurchUnitDetails = structuredClone(churchUnitDetails);
+    newChurchUnitDetails.events.push(newEvent);
+    setChurchUnitDetails(newChurchUnitDetails);
+  };
+
+  const handleEditEvent = (editedEvent) => {
+    const newChurchUnitDetails = structuredClone(churchUnitDetails);
+    newChurchUnitDetails.events = newChurchUnitDetails.events.map((event) => {
+      if (event.id !== editedEvent.id) {
+        return event;
+      } else {
+        return editedEvent;
+      }
+    });
+    setChurchUnitDetails(newChurchUnitDetails);
+  };
+
   return (
     <React.Fragment>
       <Header title={pageTitle} />
@@ -126,6 +146,7 @@ export default function ChurchUnit() {
                 unitOrgs={churchUnitDetails.orgs}
                 canEdit={canEdit}
                 canViewPrivate={canViewPrivate}
+                onEditEvent={handleEditEvent}
               />
             ))
           ) : (
@@ -142,16 +163,32 @@ export default function ChurchUnit() {
         </section>
         <section className={styles.actionsContainer}>
           {canEdit && (
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={() => setShowPastEvents(!showPastEvents)}
-            >
-              {showPastEvents ? "Hide" : "Show"} past events
-            </Button>
+            <div>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => setShowPastEvents(!showPastEvents)}
+              >
+                {showPastEvents ? "Hide" : "Show"} past events
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => openNewEventModal(true)}
+              >
+                Create new event
+              </Button>
+            </div>
           )}
         </section>
       </main>
+      <EventUpsertModal
+        event={{}}
+        unitOrgs={churchUnitDetails?.orgs || {}}
+        onAddEvent={handleAddEvent}
+        isOpen={newEventModalIsOpen}
+        onClose={() => openNewEventModal(false)}
+      />
     </React.Fragment>
   );
 }

@@ -12,7 +12,6 @@ export default function OrgSelector(props) {
     }
     updateList(filteredList);
     // TODO save filteredList to localStorage with churchUnitUrlName for future visits
-    console.log(filteredList); // DEBUG
   };
 
   return (

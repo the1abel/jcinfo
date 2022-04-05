@@ -130,8 +130,7 @@ namespace backend.Controllers
 
       if (newChurchUnitOrErr is not null && newChurchUnitOrErr.Length == 24)
       {
-        return CreatedAtAction(nameof(Find), new { urlName = newEvent.Id },
-            new { result = "success", urlName = newEvent.Id });
+        return Ok(new { result = "success", id = newEvent.Id });
       }
       else
       {
@@ -153,8 +152,7 @@ namespace backend.Controllers
 
       if (newChurchUnitOrErr is not null && newChurchUnitOrErr.Length == 24)
       {
-        return CreatedAtAction(nameof(Find), new { urlName = eventToUpdate.Id },
-            new { result = "success", urlName = eventToUpdate.Id });
+        return Ok(new { result = "success", id = eventToUpdate.Id });
       }
       else
       {

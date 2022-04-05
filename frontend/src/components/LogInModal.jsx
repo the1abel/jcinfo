@@ -1,6 +1,6 @@
 import PermissionsContext from "../store/PermissionsContext";
 import React, { useContext, useState } from "react";
-import styles from "./auth.module.css";
+import styles from "./modal.module.css";
 import * as Yup from "yup";
 import {
   Alert,

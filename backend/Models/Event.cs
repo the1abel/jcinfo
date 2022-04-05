@@ -13,12 +13,6 @@ namespace backend.Models
     public bool? IsForMembersOnly { get; set; } = false;
     public string[]? Orgs { get; set; }
     public bool? IsAnnouncement { get; set; } = false;
-    public string? CreatedBy { get; set; }
-    [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
-    public DateTime? CreatedAt { get; set; }
-    public string? LastUpdatedBy { get; set; }
-    [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
-    public DateTime? LastUpdatedAt { get; set; }
     public bool? DoDisplayTime { get; set; }
     [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
     public DateTime? Start { get; set; }
@@ -27,5 +21,12 @@ namespace backend.Models
     public string? PublicDescription { get; set; }
     public string? MembersOnlyDescription { get; set; }
     public string? Location { get; set; }
+
+    public string? CreatedBy { get; set; }
+    [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
+    public DateTime? CreatedAt { get; set; }
+    public string? LastUpdatedBy { get; set; }
+    [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
+    public DateTime? LastUpdatedAt { get; set; }
   }
 }

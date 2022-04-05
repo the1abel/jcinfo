@@ -130,13 +130,14 @@ namespace backend.Services
         Builders<ChurchUnit>.Filter.ElemMatch(x => x.Events, e => e.Id == eventToUpdate.Id)
       );
 
-      var update = Builders<ChurchUnit>.Update.Push<Event>(x => x.Events, eventToUpdate);
+      #pragma warning disable CS8602 // Dereference of a possibly null reference.
+      var update = Builders<ChurchUnit>.Update.Set(x => x.Events[-1], eventToUpdate);
+      #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
       // ChurchUnit.Events.Start
       try
       {
-        await _churchUnitCollection
-          .UpdateOneAsync(x => x.UrlName == urlName, update);
+        await _churchUnitCollection.UpdateOneAsync(filter, update);
       }
       catch (Exception ex)
       {

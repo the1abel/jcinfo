@@ -44,8 +44,10 @@ export default function Event(props) {
 
       <EventUpsertModal
         event={event}
+        unitOrgs={unitOrgs}
         isOpen={eventUpsertModalIsOpen}
         onClose={() => openEventUpsertModal(false)}
+        onEditEvent={props.onEditEvent}
       />
     </div>
   );
