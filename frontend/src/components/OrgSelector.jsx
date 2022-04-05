@@ -1,34 +1,59 @@
-import React from "react";
+import PermissionsContext from "../store/PermissionsContext";
+import React, { useContext, useEffect, useState } from "react";
 import styles from "./OrgSelector.module.css";
 import { Checkbox } from "@mui/material";
 
 export default function OrgSelector(props) {
-  const { orgs, updateList } = props;
+  const permissionsCtx = useContext(PermissionsContext);
+  const { loggedInUser } = permissionsCtx;
+  const { orgs, updateListOfEvents } = props;
 
-  const handleChange = (ev) => {
-    const filteredList = {};
-    for (const el of document.forms.selectedOrgs.elements) {
-      filteredList[el.parentElement.parentElement.innerText] = el.checked;
+  const [selectedOrgs, setSelectedOrgs] = useState(orgs);
+  const handleChangeOneSelectedOrg = (org) => {
+    const newSelectedOrgs = structuredClone(selectedOrgs);
+    newSelectedOrgs[org] = !selectedOrgs[org];
+    updateListOfEvents(newSelectedOrgs);
+    setSelectedOrgs(newSelectedOrgs);
+
+    if (loggedInUser) {
+      localStorage.setItem(
+        "selectedOrgs_" + loggedInUser,
+        JSON.stringify(newSelectedOrgs)
+      );
     }
-    updateList(filteredList);
-    // TODO save filteredList to localStorage with churchUnitUrlName for future visits
   };
+
+  useEffect(() => {
+    const savedSelectedOrgs =
+      loggedInUser && JSON.parse(localStorage.getItem("selectedOrgs_" + loggedInUser));
+
+    if (savedSelectedOrgs) {
+      updateListOfEvents(savedSelectedOrgs);
+      setSelectedOrgs(savedSelectedOrgs);
+    } else if (!loggedInUser) {
+      // if user logs out, select all orgs
+      updateListOfEvents(orgs);
+      setSelectedOrgs(orgs);
+    }
+  }, [loggedInUser, orgs, updateListOfEvents]);
 
   return (
     <div className={styles.orgSelector}>
       <h4>Select Organizations</h4>
-      <form name="selectedOrgs" onChange={handleChange}>
+      <div>
         {Object.keys(orgs).map(
-          (o) =>
-            o !== "top" && (
-              <label key={o} style={{ backgroundColor: orgs[o].Color }}>
-                {/* TODO set defaultChecked based on state saved from previous visit */}
-                <Checkbox defaultChecked />
-                {o}
+          (org) =>
+            org !== "top" && (
+              <label key={org} style={{ backgroundColor: orgs[org].Color }}>
+                <Checkbox
+                  checked={!!selectedOrgs[org]}
+                  onChange={() => handleChangeOneSelectedOrg(org)}
+                />
+                {org}
               </label>
             )
         )}
-      </form>
+      </div>
     </div>
   );
 }

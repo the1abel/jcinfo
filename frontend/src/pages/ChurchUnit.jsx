@@ -130,7 +130,10 @@ export default function ChurchUnit() {
       <main>
         <section className={styles.filterContainer}>
           {churchUnitDetails?.orgs && (
-            <OrgSelector orgs={churchUnitDetails.orgs} updateList={setSelectedOrgs} />
+            <OrgSelector
+              orgs={churchUnitDetails.orgs}
+              updateListOfEvents={setSelectedOrgs}
+            />
           )}
         </section>
         <section className={styles.eventsContainer}>

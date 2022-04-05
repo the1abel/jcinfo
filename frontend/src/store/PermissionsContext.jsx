@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 
 const PermissionsContext = React.createContext({
-  permissions: null, // default value
   isLoggedIn: false,
+  loggedInUser: null,
+  permissions: null, // default value
   setPermissions: (permissions) => {}, // dummy function for IDE autocompletion
 });
 
 export const PermissionsContextProvider = (props) => {
+  const [loggedInUser, setLoggedInUser] = useState(null);
+
   const [permissions, setPermissions] = useState(null);
   const handleSetPermissions = (permissions) => {
     if (permissions) {
@@ -15,13 +18,15 @@ export const PermissionsContextProvider = (props) => {
       for (const form of document.forms) {
         if (form.stayLoggedIn?.checked) {
           localStorage.setItem("stayLoggedInEmail", form.email.value);
-
+          setLoggedInUser(form.email.value);
         } else if (form.stayLoggedIn) {
           // stayLoggedIn checkbox exists but is not checked
           localStorage.removeItem("stayLoggedInEmail");
+          setLoggedInUser(form.email.value);
         }
       }
     } else {
+      setLoggedInUser(null);
       setPermissions(null);
       localStorage.removeItem("stayLoggedInEmail");
     }
@@ -34,8 +39,10 @@ export const PermissionsContextProvider = (props) => {
         .then((resStream) => resStream.json())
         .then((res) => {
           if (res.result === "success") {
+            setLoggedInUser(email);
             setPermissions(res.permissions);
           } else {
+            setLoggedInUser(null);
             setPermissions(null);
             localStorage.removeItem("stayLoggedInEmail");
           }
@@ -46,8 +53,9 @@ export const PermissionsContextProvider = (props) => {
   return (
     <PermissionsContext.Provider
       value={{
-        permissions,
         isLoggedIn: !!permissions,
+        loggedInUser: loggedInUser,
+        permissions: permissions,
         setPermissions: handleSetPermissions,
       }}
     >
