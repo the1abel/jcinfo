@@ -25,14 +25,11 @@ main > div > :first-child:not(.centered) {
 }
 
 .actionsContainer {
+  display: flex;
+  flex-direction: column;
   padding: .5rem;
 }
 
-.actionsContainer > div {
-  display: flex;
-  flex-direction: column;
-}
-
-.actionsContainer > div > * {
+.actionsContainer > button {
   margin-bottom: .5rem;
 }

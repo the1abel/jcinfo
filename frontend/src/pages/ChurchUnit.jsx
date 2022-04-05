@@ -1,4 +1,5 @@
 import Event from "../components/Event";
+import ChurchUnitUpdateModal from "../components/ChurchUnitUpdateModal";
 import EventUpsertModal from "../components/EventUpsertModal";
 import Header from "../components/Header";
 import OrgSelector from "../components/OrgSelector";
@@ -21,29 +22,37 @@ export default function ChurchUnit() {
   const [eventsToDisplay, setEventsToDisplay] = useState(null);
   const [showPastEvents, setShowPastEvents] = useState(false);
   const [selectedOrgs, setSelectedOrgs] = useState({});
-  const [newEventModalIsOpen, openNewEventModal] = useState(false);
+  const [createEventModalIsOpen, openCreateEventModal] = useState(false);
+  const [churchUnitAdminModalIsOpen, openChurchUnitAdminModal] = useState(false);
 
   // TODO refine permissions to organizational level
   // const [churchUnitPermissions, setChurchUnitPermissions] = useState(null);
   const [canViewPrivate, setCanViewPrivate] = useState(false);
   const [canEdit, setCanEdit] = useState(false);
+  const [canAdmin, setCanAdmin] = useState(false);
 
   // permissions
   useEffect(() => {
     const churchUnitPermissions = permissions ? permissions[churchUnitUrlName] : null;
 
+    setCanAdmin(false);
     setCanEdit(false);
     setCanViewPrivate(false);
 
     if (churchUnitPermissions) {
       for (const org in churchUnitPermissions) {
-        const p = churchUnitPermissions[org];
-        if (p === "admin" || p === "edit") {
-          setCanEdit(true);
-          setCanViewPrivate(true);
-          break;
-        } else if (p === "viewPrivate") {
-          setCanViewPrivate(true);
+        const perms = churchUnitPermissions[org];
+
+        switch (perms) {
+          case "admin":
+            setCanAdmin(true);
+          // falls through
+          case "edit":
+            setCanEdit(true);
+          // falls through
+          case "viewPrivate":
+            setCanViewPrivate(true);
+          // no default
         }
       }
     }
@@ -172,7 +181,15 @@ export default function ChurchUnit() {
         </section>
         <section className={styles.actionsContainer}>
           {canEdit && (
-            <div>
+            <React.Fragment>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => openCreateEventModal(true)}
+              >
+                Create new event
+              </Button>
+
               <Button
                 variant="outlined"
                 size="small"
@@ -180,24 +197,38 @@ export default function ChurchUnit() {
               >
                 {showPastEvents ? "Hide" : "Show"} past events
               </Button>
+              </React.Fragment>
+              )}
+
+            {canAdmin && (
               <Button
-                variant="outlined"
-                size="small"
-                onClick={() => openNewEventModal(true)}
-              >
-                Create new event
-              </Button>
-            </div>
+              variant="outlined"
+              size="small"
+              onClick={() => openChurchUnitAdminModal(true)}
+            >
+              Church Unit Admin
+            </Button>
           )}
         </section>
       </main>
-      <EventUpsertModal
-        event={{}}
-        unitOrgs={churchUnitDetails?.orgs || {}}
-        onAddEvent={handleAddEvent}
-        isOpen={newEventModalIsOpen}
-        onClose={() => openNewEventModal(false)}
-      />
+
+      {canEdit && (
+        <EventUpsertModal
+          event={{}}
+          unitOrgs={churchUnitDetails?.orgs || {}}
+          onAddEvent={handleAddEvent}
+          isOpen={createEventModalIsOpen}
+          onClose={() => openCreateEventModal(false)}
+        />
+      )}
+
+      {canAdmin && (
+        <ChurchUnitUpdateModal
+          unitOrgs={churchUnitDetails?.orgs || {}}
+          isOpen={churchUnitAdminModalIsOpen}
+          onClose={() => openChurchUnitAdminModal(false)}
+        />
+      )}
     </React.Fragment>
   );
 }

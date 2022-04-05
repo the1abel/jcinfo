@@ -5,7 +5,7 @@ import styles from "./Header.module.css";
 import SignUpModal from "../components/SignUpModal";
 import { Button } from "@mui/material";
 import { Link } from "react-router-dom";
-import CreateChurchUnitModal from "./CreateChurchUnitModal";
+import ChurchUnitCreateModal from "./ChurchUnitCreateModal";
 
 export default function Header(props) {
   const permissionsCtx = useContext(PermissionsContext);
@@ -59,7 +59,7 @@ export default function Header(props) {
 
       <SignUpModal isOpen={signUpModalIsOpen} onClose={() => openSignUpModal(false)} />
       <LogInModal isOpen={logInModalIsOpen} onClose={() => openLogInModal(false)} />
-      <CreateChurchUnitModal
+      <ChurchUnitCreateModal
         isOpen={createUnitModalIsOpen}
         onClose={() => openCreateUnitModal(false)}
       />

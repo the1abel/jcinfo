@@ -17,7 +17,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 
-export default function CreateChurchUnitModal(props) {
+export default function ChurchUnitCreateModal(props) {
   const navigate = useNavigate();
   const permissionsCtx = useContext(PermissionsContext);
 
