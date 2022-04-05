@@ -12,6 +12,7 @@ import {
   DialogTitle,
   TextField,
 } from "@mui/material";
+import { request } from "../utils";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -22,7 +23,9 @@ export default function CreateChurchUnitModal(props) {
 
   // form validation schema (yup)
   const validationSchema = Yup.object().shape({
-    name: Yup.string().required("Curch unit name is required"),
+    name: Yup.string()
+      .min(3, "Church unit name must be at least 3 characters")
+      .required("Curch unit name is required"),
   });
 
   // form validation (react-hook-form)
@@ -32,7 +35,7 @@ export default function CreateChurchUnitModal(props) {
     register,
     reset,
   } = useForm({
-    mode: "onBlur",
+    mode: "onChange",
     reValidateMode: "onChange",
     resolver: yupResolver(validationSchema),
   });
@@ -42,6 +45,7 @@ export default function CreateChurchUnitModal(props) {
 
   const closeModal = () => {
     setCreateError(null);
+    setIsUniqueName(true);
     reset();
     setUrlName("");
     props.onClose();
@@ -51,13 +55,12 @@ export default function CreateChurchUnitModal(props) {
   const [isUniqueName, setIsUniqueName] = useState(true);
   const handleNameChange = (ev) => {
     // TODO wait for a pause in user input before fetching
-    fetch("/api/ChurchUnit/IsUniqueName?name=" + encodeURIComponent(ev.target.value))
-      .then((resStream) => resStream.json())
+    request("/api/ChurchUnit/IsUniqueName/" + encodeURIComponent(ev.target.value))
       .then((res) => {
         setIsUniqueName(res.result);
         setUrlName(res.urlName);
       })
-      .catch((err) => setCreateError(err));
+      .catch((err) => setCreateError(err.toString()));
   };
 
   // create new Church Unit
@@ -78,8 +81,7 @@ export default function CreateChurchUnitModal(props) {
       body: JSON.stringify(data, null, 2),
     };
 
-    fetch("api/ChurchUnit/Create", opts)
-      .then((resStream) => resStream.json())
+    request("api/ChurchUnit/Create", opts)
       .then((res) => {
         if (res.result === "success") {
           closeModal();
@@ -92,7 +94,7 @@ export default function CreateChurchUnitModal(props) {
           );
         }
       })
-      .catch((err) => setCreateError(err));
+      .catch((err) => setCreateError(err.toString()));
   };
 
   return (

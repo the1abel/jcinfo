@@ -102,12 +102,18 @@ export default function ChurchUnit() {
           }
         })
       );
+    } else {
+      setEventsToDisplay([]);
     }
   }, [canEdit, canViewPrivate, churchUnitDetails, selectedOrgs, showPastEvents]);
 
   const handleAddEvent = (newEvent) => {
     const newChurchUnitDetails = structuredClone(churchUnitDetails);
-    newChurchUnitDetails.events.push(newEvent);
+    if (newChurchUnitDetails.events) {
+      newChurchUnitDetails.events.push(newEvent);
+    } else {
+      newChurchUnitDetails.events = [newEvent];
+    }
     setChurchUnitDetails(newChurchUnitDetails);
   };
 

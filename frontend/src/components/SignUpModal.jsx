@@ -11,6 +11,7 @@ import {
   DialogTitle,
   TextField,
 } from "@mui/material";
+import { request } from "../utils";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import StayLoggedIn from "./StayLoggedIn";
@@ -55,10 +56,9 @@ export default function SignUpModal(props) {
   const [isUniqueEmail, setIsUniqueEmail] = useState(true);
   const handleEmailChange = (ev) => {
     // TODO wait for a pause in user input before fetching
-    fetch("/api/Auth/IsUniqueEmail?email=" + encodeURIComponent(ev.target.value))
-      .then((resStream) => resStream.json())
+    request("/api/Auth/IsUniqueEmail?email=" + encodeURIComponent(ev.target.value))
       .then((res) => setIsUniqueEmail(res.result))
-      .catch((err) => setSignUpError(err));
+      .catch((err) => setSignUpError(err.toString()));
   };
 
   // sign up
@@ -76,8 +76,7 @@ export default function SignUpModal(props) {
       body: JSON.stringify(data, null, 2),
     };
 
-    fetch("/api/Auth/SignUp", opts)
-      .then((resStream) => resStream.json())
+    request("/api/Auth/SignUp", opts)
       .then((res) => {
         if (res.result === "success") {
           permissionsCtx.setPermissions(res.permissions);
@@ -91,7 +90,7 @@ export default function SignUpModal(props) {
           );
         }
       })
-      .catch((err) => setSignUpError(err));
+      .catch((err) => setSignUpError(err.toString()));
   };
 
   return (

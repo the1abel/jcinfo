@@ -33,6 +33,8 @@ export default function EventUpsertModal(props) {
       .required("Title is required")
       .min(3, "Title must be at least 3 characters"),
     orgs: Yup.array().min(1, orgsErrMsg).typeError(orgsErrMsg),
+    start: Yup.string().required("Start date is required"),
+    finish: Yup.string().required("Finish date is required"),
   });
 
   // form validation (react-hook-form)
@@ -285,6 +287,11 @@ export default function EventUpsertModal(props) {
               </React.Fragment>
             )}
           </div>
+          {(errors.start?.message || errors.finish?.message) && (
+            <Alert severity="error">
+              {errors.start?.message || errors.finish?.message}
+            </Alert>
+          )}
 
           {/* descriptions */}
           <TextField

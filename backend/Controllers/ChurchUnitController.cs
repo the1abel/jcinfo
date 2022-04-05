@@ -103,8 +103,7 @@ namespace backend.Controllers
         _ = _peopleService
           .AddOrUpdatePermissionAsync(HttpContext, newChurchUnit.UrlName, "all", "admin");
 
-        return CreatedAtAction(nameof(Find), new { urlName = newChurchUnit.UrlName },
-            new { result = "success", urlName = newChurchUnit.UrlName });
+        return Ok(new { result = "success", urlName = newChurchUnit.UrlName });
       }
       else if (newChurchUnitOrErr is not null && newChurchUnitOrErr.Equals("duplicate"))
       {
@@ -120,7 +119,8 @@ namespace backend.Controllers
     [HttpPost("{urlName}/Event")]
     public async Task<IActionResult> CreateEvent(string urlName, Event newEvent)
     {
-      if (string.IsNullOrWhiteSpace(newEvent.Finish.ToString()))
+      if (string.IsNullOrWhiteSpace(newEvent.Start.ToString()) ||
+          string.IsNullOrWhiteSpace(newEvent.Finish.ToString()))
       {
         return BadRequest(new { result = "error" });
       }
@@ -130,6 +130,8 @@ namespace backend.Controllers
 
       if (newChurchUnitOrErr is not null && newChurchUnitOrErr.Length == 24)
       {
+        //return CreatedAtAction(nameof(Find), new { urlName = newEvent.Id },
+        //    new { result = "success", id = newEvent.Id });
         return Ok(new { result = "success", id = newEvent.Id });
       }
       else
@@ -142,7 +144,8 @@ namespace backend.Controllers
     [HttpPut("{urlName}/Event")]
     public async Task<IActionResult> UpdateEvent(string urlName, Event eventToUpdate)
     {
-      if (string.IsNullOrWhiteSpace(eventToUpdate.Finish.ToString()))
+      if (string.IsNullOrWhiteSpace(eventToUpdate.Start.ToString()) ||
+          string.IsNullOrWhiteSpace(eventToUpdate.Finish.ToString()))
       {
         return BadRequest(new { result = "error" });
       }

@@ -11,6 +11,7 @@ import {
   DialogTitle,
   TextField,
 } from "@mui/material";
+import { request } from "../utils";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import StayLoggedIn from "./StayLoggedIn";
@@ -55,8 +56,7 @@ export default function LogInModal(props) {
       body: JSON.stringify(data),
     };
 
-    fetch("api/Auth/LogIn", opts)
-      .then((resStream) => resStream.json())
+    request("api/Auth/LogIn", opts)
       .then((res) => {
         if (res.result === "success") {
           permissionsCtx.setPermissions(res.permissions);
@@ -65,7 +65,7 @@ export default function LogInModal(props) {
           setLogInError(":( Sorry, that didn't work.  Please try again");
         }
       })
-      .catch((err) => setLogInError(err));
+      .catch((err) => setLogInError(err.toString()));
   };
 
   return (
