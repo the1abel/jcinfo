@@ -119,14 +119,7 @@ export default function ChurchUnitUpdateModal(props) {
             margin="dense"
             variant="standard"
           />
-          <Select
-            id="permission"
-            labelId="permissionLabel"
-            label="Permission"
-            defaultValue={"viewPublic"}
-            fullWidth
-            // onChange={handleChange}
-          >
+          <Select id="permission" defaultValue={"viewPublic"} autoWidth>
             {Object.keys(VALID_PERMISSIONS).map((perm) => (
               <MenuItem key={perm} value={perm}>
                 {VALID_PERMISSIONS[perm]}
