@@ -87,7 +87,7 @@ namespace backend.Services
         Console.WriteLine(ex.Message);
         if (ex.Message.Contains("DuplicateKey"))
         {
-          return "Duplicate";
+          return "ErrorDuplicate";
         }
         else
         {

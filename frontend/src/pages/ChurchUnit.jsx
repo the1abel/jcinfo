@@ -6,13 +6,14 @@ import OrgSelector from "../components/OrgSelector";
 import PermissionsContext from "../store/PermissionsContext";
 import React, { useContext, useState, useEffect } from "react";
 import styles from "./ChurchUnit.module.css";
-import { useParams } from "react-router-dom";
 import { Alert, Button, CircularProgress } from "@mui/material";
+import { useNavigate, useParams } from "react-router-dom";
 import { request } from "../utils";
 
 export default function ChurchUnit() {
   const permissionsCtx = useContext(PermissionsContext);
   const permissions = permissionsCtx.permissions;
+  const navigate = useNavigate();
 
   const { churchUnitUrlName } = useParams();
   const [error, setError] = useState(null);
@@ -68,6 +69,11 @@ export default function ChurchUnit() {
 
     request(url)
       .then((churchUnit) => {
+        if (!churchUnit.name) {
+          navigate("/");
+          return;
+        }
+
         setPageTitle(churchUnit.name);
         setTopOrg(churchUnit.orgs);
         localStorage.setItem(
@@ -88,7 +94,10 @@ export default function ChurchUnit() {
       })
       .catch((err) => setError(err.toString()))
       .finally(() => setIsLoading(false));
-  }, [churchUnitUrlName]);
+
+    // avoid a no-op memory leak console warning when navigate() is called
+    return () => setChurchUnitDetails(null);
+  }, [churchUnitUrlName, navigate]);
 
   // filter events
   useEffect(() => {
@@ -197,11 +206,11 @@ export default function ChurchUnit() {
               >
                 {showPastEvents ? "Hide" : "Show"} past events
               </Button>
-              </React.Fragment>
-              )}
+            </React.Fragment>
+          )}
 
-            {canAdmin && (
-              <Button
+          {canAdmin && (
+            <Button
               variant="outlined"
               size="small"
               onClick={() => openChurchUnitAdminModal(true)}

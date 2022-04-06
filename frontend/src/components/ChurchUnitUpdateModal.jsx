@@ -21,9 +21,28 @@ import { yupResolver } from "@hookform/resolvers/yup";
 export default function ChurchUnitUpdateModal(props) {
   const permissionsCtx = useContext(PermissionsContext);
 
+  const [userPermissionMsg, setUserPermissionMsg] = useState(null);
+
+  // verify user is valid
+  const verifyValidUser = async (email, yupTestInfoObj) => {
+    if (!email) return false;
+
+    // TODO wait for a pause in user input before fetching
+    return await request("/api/Auth/IsUniqueEmail/" + encodeURIComponent(email))
+      .then((res) => !res.result)
+      .catch((err) => {
+        setUserPermissionMsg({ severity: "error", msg: err.toString() });
+        return false;
+      });
+  };
+
   // form validation schema (yup)
+  const invalidEmailMsg = "Please provide a registered user's email address.";
   const validationSchema = Yup.object().shape({
-    email: Yup.string().required("A valid user must be selected"),
+    email: Yup.string()
+      .required(invalidEmailMsg)
+      .email(invalidEmailMsg)
+      .test("verifyValidUser", invalidEmailMsg, verifyValidUser),
     permission: Yup.string().required("A permission level must be selected"),
   });
 
@@ -45,29 +64,11 @@ export default function ChurchUnitUpdateModal(props) {
     props.onClose();
   };
 
-  const [userPermissionMsg, setUserPermissionMsg] = useState(null);
-  const verifyValidUser = (ev) => {
-    // TODO wait for a pause in user input before fetching
-    request("/api/Auth/IsUniqueEmail?email=" + encodeURIComponent(ev.target.value))
-      .then((res) => {
-        if (res.result === true) {
-          setUserPermissionMsg({
-            severity: "info",
-            msg: "Please provide a registered user's email address.",
-          });
-        } else if (res.result === false) {
-          setUserPermissionMsg(null);
-        }
-      })
-      .catch((err) => setUserPermissionMsg({ severity: "error", msg: err.toString() }));
-  };
-
   const setUserPermissions = (data) => {
+    const notLoggedInMsg = "You must be logged in to edit permissions.";
+
     if (!permissionsCtx.isLoggedIn) {
-      setUserPermissionMsg({
-        severity: "error",
-        msg: "You must be logged in to create a church unit.",
-      });
+      setUserPermissionMsg({ severity: "error", msg: notLoggedInMsg });
       return;
     }
 
@@ -85,15 +86,15 @@ export default function ChurchUnitUpdateModal(props) {
       .then((res) => {
         if (res.result === "Success") {
           closeModal();
-        } else if (res.result === "NotLoggedIn") {
-          setUserPermissionMsg({
-            severity: "error",
-            msg: "You must be logged in to create a church unit.",
-          });
+        } else if (res.result === "ErrorNotLoggedIn") {
+          setUserPermissionMsg({ severity: "error", msg: notLoggedInMsg });
+          setTimeout(() => permissionsCtx.setPermissions(null), 3000);
         } else {
           setUserPermissionMsg({
             severity: "error",
-            msg: "Oops.  There was an error updating the user's permissions.  Please try again",
+            msg:
+              "Oops.  There was an error updating the user's permissions.  Please try again.  " +
+              res.result,
           });
         }
       })
@@ -117,11 +118,14 @@ export default function ChurchUnitUpdateModal(props) {
             label="User's registered email address"
             {...register("email")}
             type="email"
-            onChange={verifyValidUser}
             fullWidth
             margin="dense"
             variant="standard"
           />
+          {errors.email?.message && (
+            <Alert severity="info">{errors.email?.message}</Alert>
+          )}
+
           <Select
             id="permission"
             defaultValue={"viewPublic"}
@@ -134,6 +138,9 @@ export default function ChurchUnitUpdateModal(props) {
               </MenuItem>
             ))}
           </Select>
+          {errors.permission?.message && (
+            <Alert severity="error">{errors.permission?.message}</Alert>
+          )}
 
           {userPermissionMsg && (
             <Alert severity={userPermissionMsg.severity}>{userPermissionMsg.msg}</Alert>

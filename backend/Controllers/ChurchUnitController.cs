@@ -44,7 +44,7 @@ namespace backend.Controllers
       string urlName = ConvertToUrlName(name);
       if (string.IsNullOrWhiteSpace(urlName))
       {
-        return Ok(new { result = true, urlName = urlName });
+        return Ok(new { result = "ErrorInvalidName", urlName = urlName });
       }
 
       bool isUniqueUrlName = await _churchUnitsService.IsUniqueName(urlName);
@@ -125,21 +125,25 @@ namespace backend.Controllers
 
         var newPermissionsStrOrErr = await _peopleService.AddOrUpdatePermissionAsync(
             HttpContext, email, newChurchUnit.UrlName, "all", "admin");
-        Match match =
+        Match matchError =
             Regex.Match(newPermissionsStrOrErr, @"^Error", RegexOptions.IgnoreCase);
 
-        if (!match.Success)
+        if (!matchError.Success)
         {
           return Ok(new { result = "Success", urlName = newChurchUnit.UrlName });
         }
+        else
+        {
+          return BadRequest(new { result = "Error2" });
+        }
       }
       else if (newChurchUnitIdOrErr is not null &&
-          newChurchUnitIdOrErr.Equals("Duplicate"))
+          newChurchUnitIdOrErr.Equals("ErrorDuplicate"))
       {
-        return BadRequest(new { result = "Duplicate" });
+        return BadRequest(new { result = "ErrorDuplicate" });
       }
 
-      return BadRequest(new { result = "Error2" });
+      return BadRequest(new { result = "Error3" });
     }
 
     // POST api/ChurchUnit/{urlName}/Event

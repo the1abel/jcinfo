@@ -21,7 +21,7 @@ public class AuthController : ControllerBase
     _passwordHasher = new PasswordHasher<string>();
   }
 
-  [HttpGet("IsUniqueEmail")]
+  [HttpGet("IsUniqueEmail/{email}")]
   public async Task<IActionResult> IsUniqueEmail(string? email)
   {
     if (!new EmailAddressAttribute().IsValid(email))
@@ -53,12 +53,14 @@ public class AuthController : ControllerBase
     {
       HttpContext.Session.SetString("personId", newPersonIdOrErr);
       HttpContext.Session.SetString("personEmail", newPerson.Email);
+      HttpContext.Session.SetString("personPermissions", "{}");
       return CreatedAtAction(nameof(Permissions), new { email = newPerson.Email },
           new { result = "Success", permissions = new { } });
     }
-    else if (newPersonIdOrErr is not null && newPersonIdOrErr.Equals("duplicate"))
+    else if (newPersonIdOrErr is not null &&
+        newPersonIdOrErr.Equals("ErrorDuplicate"))
     {
-      return BadRequest(new { result = "Duplicate" });
+      return BadRequest(new { result = "ErrorDuplicate" });
     }
     else
     {
@@ -73,7 +75,7 @@ public class AuthController : ControllerBase
 
     if (dbResPerson is null)
     {
-      return Ok(new { result = "AuthenticationFailed" });
+      return Ok(new { result = "ErrorAuthenticationFailed" });
     }
 
     #pragma warning disable CS8604 // Possible null reference argument.
@@ -94,7 +96,7 @@ public class AuthController : ControllerBase
     }
     else
     {
-      return Ok(new { result = "AuthenticationFailed" });
+      return Ok(new { result = "ErrorAuthenticationFailed" });
     }
   }
 
@@ -130,15 +132,13 @@ public class AuthController : ControllerBase
     }
     else
     {
-      return Ok(new { result = "NotLoggedIn" });
+      return Ok(new { result = "ErrorNotLoggedIn" });
     }
   }
 
   [HttpPut("Permissions")]
   public async Task<IActionResult> UpdatePermissions([FromBody] PermissionSet p)
   {
-    //Console.WriteLine($"${ email}, ${churchUnitUrlName}, ${org}, ${newPermission}"); // DEBUG
-
     if (string.IsNullOrEmpty(p.Org))
     {
       return Ok(new { result = "ErrorMissingOrg"});
@@ -164,7 +164,7 @@ public class AuthController : ControllerBase
   //
   //   if (person is null)
   //   {
-  //     return Ok(new { result = "AuthenticationFailed" });
+  //     return Ok(new { result = "ErrorAuthenticationFailed" });
   //   }
   //
   //   updatedPerson.Id = person.Id;

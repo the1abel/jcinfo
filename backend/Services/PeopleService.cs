@@ -33,7 +33,7 @@ namespace backend.Services
         Console.WriteLine(ex.Message);
         if (ex.Message.Contains("DuplicateKey"))
         {
-          return "Duplicate";
+          return "ErrorDuplicate";
         }
         else
         {
@@ -46,19 +46,25 @@ namespace backend.Services
     public async Task<string> AddOrUpdatePermissionAsync(HttpContext httpContext,
         string emailToUpdate, string churchUnitUrlName, string org, string newPermission)
     {
+      string? requester = httpContext.Session.GetString("personEmail");
+      if (requester is null)
+      {
+        return "ErrorNotLoggedIn";
+      }
+
       string field = $"Permissions.{churchUnitUrlName}.{org}";
 
       // verify requester has adequate permissions
       bool requesterHasAdequatePermissions = false;
+      string? permissionsStr = httpContext.Session.GetString("personPermissions");
+
       try
       {
-        string? permissionsStr = httpContext.Session.GetString("personPermissions");
 
         #pragma warning disable CS8604 // Possible null reference argument.
         var submitterPermissions = JsonSerializer
           .Deserialize<Dictionary<string, Dictionary<string, string>>>(permissionsStr);
         #pragma warning restore CS8604 // Possible null reference argument.
-
 
         #pragma warning disable CS8602 // Dereference of a possibly null reference.
         if (submitterPermissions[churchUnitUrlName]["all"] == "admin" ||
@@ -78,10 +84,11 @@ namespace backend.Services
           !requesterHasAdequatePermissions ||
           !Person.VALID_PERMISSIONS.Contains(newPermission))
       {
+
         string errMsg =
-          " [WARNING] " + httpContext.Session.GetString("personEmail") +
-          " made an invalid attempt to set permission for" +
-          $" {emailToUpdate} to {field} = {newPermission}";
+          " [WARNING] " + requester + " made an invalid attempt to set permission for" +
+          $" {emailToUpdate} to {field} = {newPermission} .  " +
+          requester + " has the following permissions: " + permissionsStr;
 
         Console.WriteLine(DateTime.Now + errMsg);
         return "ErrorInvalidPermissions";
@@ -90,8 +97,16 @@ namespace backend.Services
       // set permissions
       var update = Builders<Person>.Update.Set(field, newPermission);
 
+      var options = new FindOneAndUpdateOptions<Person, Person>
+          { ReturnDocument = ReturnDocument.After };
+
       Person person =
         await _peopleCollection.FindOneAndUpdateAsync(x => x.Email == emailToUpdate, update);
+
+      if (person is null)
+      {
+        return "ErrorInvalidEmailAddress";
+      }
 
       string successMsg =
         " [INFO] " + httpContext.Session.GetString("personEmail") +

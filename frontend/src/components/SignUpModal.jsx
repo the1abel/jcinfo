@@ -19,9 +19,29 @@ import StayLoggedIn from "./StayLoggedIn";
 export default function SignUpModal(props) {
   const permissionsCtx = useContext(PermissionsContext);
 
+  // verify email is unique
+  const verifyUniqueUser = async (email, yupTestInfoObj) => {
+    if (!email) return false;
+
+    // TODO wait for a pause in user input before fetching
+    return await request("/api/Auth/IsUniqueEmail/" + encodeURIComponent(email))
+      .then((res) => res.result)
+      .catch((err) => {
+        setSignUpError(err.toString());
+        return false;
+      });
+  };
+
   // form validation schema (yup)
   const validationSchema = Yup.object().shape({
-    email: Yup.string().required("Email is required").email("Email is invalid"),
+    email: Yup.string()
+      .required("Email is required")
+      .email("Please enter a valid email address.")
+      .test(
+        "verifyUniqueUser",
+        "A user already has that email. Did you mean to Log In?",
+        verifyUniqueUser
+      ),
     firstName: Yup.string().required("First Name is required"),
     lastName: Yup.string().required("Last Name is required"),
     password: Yup.string()
@@ -39,9 +59,10 @@ export default function SignUpModal(props) {
     register,
     reset,
   } = useForm({
-    mode: "onBlur",
+    mode: "onChange",
     reValidateMode: "onChange",
     resolver: yupResolver(validationSchema),
+    validationSchema,
   });
 
   const [signUpError, setSignUpError] = useState(null);
@@ -52,21 +73,9 @@ export default function SignUpModal(props) {
     props.onClose();
   };
 
-  // email is unique
-  const [isUniqueEmail, setIsUniqueEmail] = useState(true);
-  const handleEmailChange = (ev) => {
-    // TODO wait for a pause in user input before fetching
-    request("/api/Auth/IsUniqueEmail?email=" + encodeURIComponent(ev.target.value))
-      .then((res) => setIsUniqueEmail(res.result))
-      .catch((err) => setSignUpError(err.toString()));
-  };
-
   // sign up
   const handleSignUp = (data) => {
     setSignUpError(null);
-    if (!isUniqueEmail) {
-      return;
-    }
 
     delete data.password2;
     data.permissions = {};
@@ -81,11 +90,9 @@ export default function SignUpModal(props) {
         if (res.result === "Success") {
           permissionsCtx.setPermissions(res.permissions);
           closeModal();
-        } else if (res.result === "Duplicate") {
-          setIsUniqueEmail(false);
         } else {
           setSignUpError(
-            "An unspecified error occurred.  Please try again.  " +
+            `An error occurred (${res.result}).  Please try again.  ` +
               "If the problem persists, please contact us at abelw@live.com"
           );
         }
@@ -109,19 +116,15 @@ export default function SignUpModal(props) {
             label="Email"
             {...register("email")}
             type="email"
-            onChange={handleEmailChange}
             fullWidth
             margin="dense"
             variant="standard"
           />
-          {(errors.email?.message && (
-            <Alert severity="error">{errors.email?.message}</Alert>
-          )) ||
-            (!isUniqueEmail && (
-              <Alert severity="error">
-                A user already has that email. Did you mean to Log In?
-              </Alert>
-            ))}
+          {errors.email?.message && (
+            <Alert severity={errors.email.message.match(/please/i) ? "info" : "error"}>
+              {errors.email?.message}
+            </Alert>
+          )}
 
           <TextField
             id="firstName"

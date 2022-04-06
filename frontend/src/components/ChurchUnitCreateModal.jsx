@@ -18,14 +18,31 @@ import { useNavigate } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 export default function ChurchUnitCreateModal(props) {
-  const navigate = useNavigate();
   const permissionsCtx = useContext(PermissionsContext);
+  const navigate = useNavigate();
+
+  // verify Church Unit Name is unique
+  const verifyUniqueName = async (name, yupTestInfoObj) => {
+    if (!name) return false;
+
+    // TODO wait for a pause in user input before fetching
+    return await request("/api/ChurchUnit/IsUniqueName/" + encodeURIComponent(name))
+      .then((res) => {
+        setUrlName(res.urlName);
+        return res.result;
+      })
+      .catch((err) => {
+        setCreateError(err.toString());
+        return false;
+      });
+  };
 
   // form validation schema (yup)
   const validationSchema = Yup.object().shape({
     name: Yup.string()
       .min(3, "Church unit name must be at least 3 characters")
-      .required("Curch unit name is required"),
+      .required("Curch unit name is required")
+      .test("verifyUniqueName", "A church unit already has that URL.", verifyUniqueName),
   });
 
   // form validation (react-hook-form)
@@ -45,22 +62,9 @@ export default function ChurchUnitCreateModal(props) {
 
   const closeModal = () => {
     setCreateError(null);
-    setIsUniqueName(true);
     reset();
     setUrlName("");
     props.onClose();
-  };
-
-  // Church Unit Name is unique
-  const [isUniqueName, setIsUniqueName] = useState(true);
-  const handleNameChange = (ev) => {
-    // TODO wait for a pause in user input before fetching
-    request("/api/ChurchUnit/IsUniqueName/" + encodeURIComponent(ev.target.value))
-      .then((res) => {
-        setIsUniqueName(res.result);
-        setUrlName(res.urlName);
-      })
-      .catch((err) => setCreateError(err.toString()));
   };
 
   // create new Church Unit
@@ -71,9 +75,6 @@ export default function ChurchUnitCreateModal(props) {
     }
 
     setCreateError(null);
-    if (!isUniqueName) {
-      return;
-    }
 
     const opts = {
       method: "POST",
@@ -90,8 +91,9 @@ export default function ChurchUnitCreateModal(props) {
 
           closeModal();
           navigate("/" + res.urlName);
-        } else if (res.result === "NotLoggedIn") {
+        } else if (res.result === "ErrorNotLoggedIn") {
           setCreateError("You must be logged in to create a church unit.");
+          setTimeout(() => permissionsCtx.setPermissions(null), 3000);
         } else {
           setCreateError(
             "Oops.  There was an error creating your church unit.  Please try again"
@@ -117,7 +119,6 @@ export default function ChurchUnitCreateModal(props) {
             label="Name of the new Church Unit"
             {...register("name")}
             type="text"
-            onChange={handleNameChange}
             fullWidth
             margin="dense"
             variant="standard"
@@ -127,9 +128,6 @@ export default function ChurchUnitCreateModal(props) {
           <DialogContentText>
             URL: https://www.jcinfo.com/<b>{urlName}</b>
           </DialogContentText>
-          {!isUniqueName && (
-            <Alert severity="error">A Church Unit already has that URL.</Alert>
-          )}
 
           {createError && <Alert severity="error">{createError}</Alert>}
         </DialogContent>

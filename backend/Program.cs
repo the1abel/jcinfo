@@ -47,7 +47,7 @@ app.Use(async (context, next) =>
       string.IsNullOrEmpty(context.Session.GetString("personId")))
   {
     context.Response.StatusCode = 400;
-    await context.Response.WriteAsJsonAsync(new { result = "NotLoggedIn" });
+    await context.Response.WriteAsJsonAsync(new { result = "ErrorNotLoggedIn" });
   }
   else
   {

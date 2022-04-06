@@ -6,3 +6,4 @@
 - Remove/change focus once a modal is opened, otherwise:
   - Events open and close as Edit Event modal items are clicked
   - Open-modal button still has focus (is highlighted) after modal is closed
+- IsUnique operations to use a callback that checks state so that a new request message is not sent every single time the user types a character into any field in the form.
