@@ -1,6 +1,7 @@
 ﻿using backend.Models;
 using backend.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Web;
 using UnidecodeSharpFork;
@@ -62,7 +63,7 @@ namespace backend.Controllers
       }
       else
       {
-        return BadRequest(new { result = "error" });
+        return BadRequest(new { result = "Error" });
       }
     }
 
@@ -79,7 +80,7 @@ namespace backend.Controllers
       }
       else
       {
-        return BadRequest(new { result = "error" });
+        return BadRequest(new { result = "Error" });
       }
     }
 
@@ -87,32 +88,58 @@ namespace backend.Controllers
     [HttpPost("Create")]
     public async Task<IActionResult> Create(ChurchUnit newChurchUnit)
     {
-      if (string.IsNullOrWhiteSpace(newChurchUnit.Name) ||
-          newChurchUnit.Name.Length < 3)
+      string? email = HttpContext.Session.GetString("personEmail");
+
+      if (email is null ||
+          string.IsNullOrWhiteSpace(newChurchUnit.Name) ||
+          newChurchUnit.Name.Length < 3 ||
+          !Utils.isNosqlInjectionFree(newChurchUnit.Name))
       {
-        return BadRequest(new { result = "error" });
+        return BadRequest(new { result = "Error1" });
       }
 
       newChurchUnit.UrlName = ConvertToUrlName(newChurchUnit.Name);
-      newChurchUnit.SetOrgsWithDefaults();
 
-      string? newChurchUnitOrErr = await _churchUnitsService.CreateAsync(newChurchUnit);
+      string? newChurchUnitIdOrErr = await _churchUnitsService.CreateAsync(newChurchUnit);
 
-      if (newChurchUnitOrErr is not null && newChurchUnitOrErr.Length == 24)
+      if (newChurchUnitIdOrErr is not null && newChurchUnitIdOrErr.Length == 24)
       {
-        _ = _peopleService
-          .AddOrUpdatePermissionAsync(HttpContext, newChurchUnit.UrlName, "all", "admin");
 
-        return Ok(new { result = "success", urlName = newChurchUnit.UrlName });
+        // give admin permission to person in the Session so that
+        //     _peopleService.AddOrUpdatePermissionAsync will allow permissions to be set
+        //     in the database
+        string? permissionsStr = HttpContext.Session.GetString("personPermissions");
+        #pragma warning disable CS8604 // Possible null reference argument.
+        var permissions = JsonSerializer
+          .Deserialize<Dictionary<string, Dictionary<string, string>>>(permissionsStr);
+        #pragma warning restore CS8604 // Possible null reference argument.
+
+        #pragma warning disable CS8602 // Dereference of a possibly null reference.
+        permissions[newChurchUnit.UrlName] = new Dictionary<string, string>
+        {
+          { "all", "admin" },
+        };
+        #pragma warning restore CS8602 // Dereference of a possibly null reference.
+        HttpContext.Session.SetString(
+            "personPermissions", JsonSerializer.Serialize(permissions));
+
+        var newPermissionsStrOrErr = await _peopleService.AddOrUpdatePermissionAsync(
+            HttpContext, email, newChurchUnit.UrlName, "all", "admin");
+        Match match =
+            Regex.Match(newPermissionsStrOrErr, @"^Error", RegexOptions.IgnoreCase);
+
+        if (!match.Success)
+        {
+          return Ok(new { result = "Success", urlName = newChurchUnit.UrlName });
+        }
       }
-      else if (newChurchUnitOrErr is not null && newChurchUnitOrErr.Equals("duplicate"))
+      else if (newChurchUnitIdOrErr is not null &&
+          newChurchUnitIdOrErr.Equals("Duplicate"))
       {
-        return BadRequest(new { result = "duplicate" });
+        return BadRequest(new { result = "Duplicate" });
       }
-      else
-      {
-        return BadRequest(new { result = "error" });
-      }
+
+      return BadRequest(new { result = "Error2" });
     }
 
     // POST api/ChurchUnit/{urlName}/Event
@@ -122,7 +149,7 @@ namespace backend.Controllers
       if (string.IsNullOrWhiteSpace(newEvent.Start.ToString()) ||
           string.IsNullOrWhiteSpace(newEvent.Finish.ToString()))
       {
-        return BadRequest(new { result = "error" });
+        return BadRequest(new { result = "Error" });
       }
 
       string? newChurchUnitOrErr =
@@ -130,13 +157,11 @@ namespace backend.Controllers
 
       if (newChurchUnitOrErr is not null && newChurchUnitOrErr.Length == 24)
       {
-        //return CreatedAtAction(nameof(Find), new { urlName = newEvent.Id },
-        //    new { result = "success", id = newEvent.Id });
-        return Ok(new { result = "success", id = newEvent.Id });
+        return Ok(new { result = "Success", id = newEvent.Id });
       }
       else
       {
-        return BadRequest(new { result = "error" });
+        return BadRequest(new { result = "Error" });
       }
     }
 
@@ -147,7 +172,7 @@ namespace backend.Controllers
       if (string.IsNullOrWhiteSpace(eventToUpdate.Start.ToString()) ||
           string.IsNullOrWhiteSpace(eventToUpdate.Finish.ToString()))
       {
-        return BadRequest(new { result = "error" });
+        return BadRequest(new { result = "Error" });
       }
 
       string? newChurchUnitOrErr =
@@ -155,11 +180,11 @@ namespace backend.Controllers
 
       if (newChurchUnitOrErr is not null && newChurchUnitOrErr.Length == 24)
       {
-        return Ok(new { result = "success", id = eventToUpdate.Id });
+        return Ok(new { result = "Success", id = eventToUpdate.Id });
       }
       else
       {
-        return BadRequest(new { result = "error" });
+        return BadRequest(new { result = "Error" });
       }
     }
 

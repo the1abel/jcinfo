@@ -78,10 +78,10 @@ export default function SignUpModal(props) {
 
     request("/api/Auth/SignUp", opts)
       .then((res) => {
-        if (res.result === "success") {
+        if (res.result === "Success") {
           permissionsCtx.setPermissions(res.permissions);
           closeModal();
-        } else if (res.result === "duplicate") {
+        } else if (res.result === "Duplicate") {
           setIsUniqueEmail(false);
         } else {
           setSignUpError(

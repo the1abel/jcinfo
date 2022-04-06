@@ -75,6 +75,9 @@ namespace backend.Services
 
     public async Task<String?> CreateAsync(ChurchUnit newChurchUnit)
     {
+      newChurchUnit.Events = new List<Event>();
+      newChurchUnit.SetOrgsWithDefaults();
+
       try
       {
         await _churchUnitCollection.InsertOneAsync(newChurchUnit);
@@ -84,11 +87,11 @@ namespace backend.Services
         Console.WriteLine(ex.Message);
         if (ex.Message.Contains("DuplicateKey"))
         {
-          return "duplicate";
+          return "Duplicate";
         }
         else
         {
-          return "error";
+          return "Error";
         }
       }
       return newChurchUnit.Id;
@@ -112,7 +115,7 @@ namespace backend.Services
       catch (Exception ex)
       {
         Console.WriteLine(ex.Message);
-        return "error";
+        return "Error";
       }
       return newEvent.Id;
     }
@@ -142,7 +145,7 @@ namespace backend.Services
       catch (Exception ex)
       {
         Console.WriteLine(ex.Message);
-        return "error";
+        return "Error";
       }
       return eventToUpdate.Id;
     }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace backend.Controllers;
 
@@ -38,7 +39,7 @@ public class AuthController : ControllerBase
   {
     if (!new EmailAddressAttribute().IsValid(newPerson.Email))
     {
-      return BadRequest(new { result = "error" });
+      return BadRequest(new { result = "Error" });
     }
 
     #pragma warning disable CS8604 // Possible null reference argument.
@@ -53,15 +54,15 @@ public class AuthController : ControllerBase
       HttpContext.Session.SetString("personId", newPersonIdOrErr);
       HttpContext.Session.SetString("personEmail", newPerson.Email);
       return CreatedAtAction(nameof(Permissions), new { email = newPerson.Email },
-          new { result = "success", permissions = new { } });
+          new { result = "Success", permissions = new { } });
     }
     else if (newPersonIdOrErr is not null && newPersonIdOrErr.Equals("duplicate"))
     {
-      return BadRequest(new { result = "duplicate" });
+      return BadRequest(new { result = "Duplicate" });
     }
     else
     {
-      return BadRequest(new { result = "error" });
+      return BadRequest(new { result = "Error" });
     }
   }
 
@@ -72,7 +73,7 @@ public class AuthController : ControllerBase
 
     if (dbResPerson is null)
     {
-      return Ok(new { result = "authentication failed" });
+      return Ok(new { result = "AuthenticationFailed" });
     }
 
     #pragma warning disable CS8604 // Possible null reference argument.
@@ -87,13 +88,13 @@ public class AuthController : ControllerBase
       HttpContext.Session.SetString("personEmail", person.Email);
       #pragma warning restore CS8604 // Possible null reference argument.
       HttpContext.Session
-        .SetString("permissions", JsonSerializer.Serialize(dbResPerson.Permissions));
+        .SetString("personPermissions", JsonSerializer.Serialize(dbResPerson.Permissions));
       return CreatedAtAction(nameof(Permissions), new { email = person.Email },
-        new { result = "success", permissions = dbResPerson.Permissions });
+        new { result = "Success", permissions = dbResPerson.Permissions });
     }
     else
     {
-      return Ok(new { result = "authentication failed" });
+      return Ok(new { result = "AuthenticationFailed" });
     }
   }
 
@@ -125,12 +126,35 @@ public class AuthController : ControllerBase
         dbResPerson.Id is not null &&
         dbResPerson.Id.Equals(personId))
     {
-      return Ok(new { result = "success", permissions = dbResPerson.Permissions });
+      return Ok(new { result = "Success", permissions = dbResPerson.Permissions });
     }
     else
     {
-      return Ok(new { result = "not logged in" });
+      return Ok(new { result = "NotLoggedIn" });
     }
+  }
+
+  [HttpPut("Permissions")]
+  public async Task<IActionResult> UpdatePermissions([FromBody] PermissionSet p)
+  {
+    //Console.WriteLine($"${ email}, ${churchUnitUrlName}, ${org}, ${newPermission}"); // DEBUG
+
+    if (string.IsNullOrEmpty(p.Org))
+    {
+      return Ok(new { result = "ErrorMissingOrg"});
+    }
+
+    var newPermissionsStrOrErr = await _peopleService.AddOrUpdatePermissionAsync(
+        HttpContext, p.Email, p.ChurchUnitUrlName, p.Org, p.Permission);
+
+    Match m = Regex.Match(newPermissionsStrOrErr, @"^Error", RegexOptions.IgnoreCase);
+
+    if (m.Success)
+    {
+      return Ok(new { result = newPermissionsStrOrErr });
+    }
+
+    return Ok(new { result = "Success", permissions = newPermissionsStrOrErr });
   }
 
   // [HttpPut("ChangePassword")]
@@ -140,7 +164,7 @@ public class AuthController : ControllerBase
   //
   //   if (person is null)
   //   {
-  //     return Ok(new { result = "authentication failed" });
+  //     return Ok(new { result = "AuthenticationFailed" });
   //   }
   //
   //   updatedPerson.Id = person.Id;

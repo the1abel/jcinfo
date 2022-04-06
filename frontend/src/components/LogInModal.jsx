@@ -58,7 +58,7 @@ export default function LogInModal(props) {
 
     request("api/Auth/LogIn", opts)
       .then((res) => {
-        if (res.result === "success") {
+        if (res.result === "Success") {
           permissionsCtx.setPermissions(res.permissions);
           closeModal();
         } else {

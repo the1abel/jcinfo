@@ -1,5 +1,6 @@
 ﻿using backend.Models;
 using MongoDB.Driver;
+using System.Text.Json;
 
 namespace backend.Services
 {
@@ -32,26 +33,80 @@ namespace backend.Services
         Console.WriteLine(ex.Message);
         if (ex.Message.Contains("DuplicateKey"))
         {
-          return "duplicate";
+          return "Duplicate";
         }
         else
         {
-          return "error";
+          return "Error";
         }
       }
       return newPerson.Id;
     }
 
-    public async Task AddOrUpdatePermissionAsync(HttpContext httpContext, string churchUnitUrlName,
-      string org, string newPermission)
+    public async Task<string> AddOrUpdatePermissionAsync(HttpContext httpContext,
+        string emailToUpdate, string churchUnitUrlName, string org, string newPermission)
     {
-      var permissions = Person.AddOrUpdatePermission(
-        httpContext, churchUnitUrlName, org, newPermission);
+      string field = $"Permissions.{churchUnitUrlName}.{org}";
 
-      string? id = httpContext.Session.GetString("personId");
+      // verify requester has adequate permissions
+      bool requesterHasAdequatePermissions = false;
+      try
+      {
+        string? permissionsStr = httpContext.Session.GetString("personPermissions");
 
-      var update = Builders<Person>.Update.Set("Permissions", permissions);
-      await _peopleCollection.UpdateOneAsync(x => x.Id == id, update);
+        #pragma warning disable CS8604 // Possible null reference argument.
+        var submitterPermissions = JsonSerializer
+          .Deserialize<Dictionary<string, Dictionary<string, string>>>(permissionsStr);
+        #pragma warning restore CS8604 // Possible null reference argument.
+
+
+        #pragma warning disable CS8602 // Dereference of a possibly null reference.
+        if (submitterPermissions[churchUnitUrlName]["all"] == "admin" ||
+              submitterPermissions[churchUnitUrlName][org] == "admin")
+        #pragma warning restore CS8602 // Dereference of a possibly null reference.
+        {
+          requesterHasAdequatePermissions = true;
+        }
+      }
+      catch
+      {
+        requesterHasAdequatePermissions = false;
+      }
+
+      // avoid NoSQL injection and invalid permission
+      if (!Utils.isNosqlInjectionFree(field) ||
+          !requesterHasAdequatePermissions ||
+          !Person.VALID_PERMISSIONS.Contains(newPermission))
+      {
+        string errMsg =
+          " [WARNING] " + httpContext.Session.GetString("personEmail") +
+          " made an invalid attempt to set permission for" +
+          $" {emailToUpdate} to {field} = {newPermission}";
+
+        Console.WriteLine(DateTime.Now + errMsg);
+        return "ErrorInvalidPermissions";
+      }
+
+      // set permissions
+      var update = Builders<Person>.Update.Set(field, newPermission);
+
+      Person person =
+        await _peopleCollection.FindOneAndUpdateAsync(x => x.Email == emailToUpdate, update);
+
+      string successMsg =
+        " [INFO] " + httpContext.Session.GetString("personEmail") +
+        $" set permission for {emailToUpdate} to {field} = {newPermission}";
+
+      Console.WriteLine(DateTime.Now + successMsg);
+
+      string newPermissionsStr = JsonSerializer.Serialize(person.Permissions);
+
+      if (emailToUpdate == httpContext.Session.GetString("personEmail"))
+      {
+        httpContext.Session.SetString("personPermissions", newPermissionsStr);
+      }
+
+      return newPermissionsStr;
     }
 
     // public async Task UpdateAsync(string id, Person updatedPerson) =>

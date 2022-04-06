@@ -83,10 +83,14 @@ export default function ChurchUnitCreateModal(props) {
 
     request("api/ChurchUnit/Create", opts)
       .then((res) => {
-        if (res.result === "success") {
+        if (res.result === "Success") {
+          const newPermissions = structuredClone(permissionsCtx.permissions);
+          newPermissions[res.urlName] = { all: "admin" };
+          permissionsCtx.setPermissions(newPermissions);
+
           closeModal();
           navigate("/" + res.urlName);
-        } else if (res.result === "notLoggedIn") {
+        } else if (res.result === "NotLoggedIn") {
           setCreateError("You must be logged in to create a church unit.");
         } else {
           setCreateError(

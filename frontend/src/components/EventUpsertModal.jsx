@@ -108,7 +108,7 @@ export default function EventUpsertModal(props) {
 
     request(`/api/ChurchUnit/${window.location.pathname.slice(1)}/Event`, opts)
       .then((res) => {
-        if (res.result === "success") {
+        if (res.result === "Success") {
           if (event.id) {
             props.onEditEvent(newEvent);
           } else {

@@ -24,6 +24,7 @@ export default function ChurchUnitUpdateModal(props) {
   // form validation schema (yup)
   const validationSchema = Yup.object().shape({
     email: Yup.string().required("A valid user must be selected"),
+    permission: Yup.string().required("A permission level must be selected"),
   });
 
   // form validation (react-hook-form)
@@ -71,6 +72,8 @@ export default function ChurchUnitUpdateModal(props) {
     }
 
     setUserPermissionMsg(null);
+    data.churchUnitUrlName = window.location.pathname.slice(1);
+    data.org = "all";
 
     const opts = {
       method: "PUT",
@@ -80,9 +83,9 @@ export default function ChurchUnitUpdateModal(props) {
 
     request("api/Auth/Permissions", opts)
       .then((res) => {
-        if (res.result === "success") {
+        if (res.result === "Success") {
           closeModal();
-        } else if (res.result === "notLoggedIn") {
+        } else if (res.result === "NotLoggedIn") {
           setUserPermissionMsg({
             severity: "error",
             msg: "You must be logged in to create a church unit.",
@@ -119,7 +122,12 @@ export default function ChurchUnitUpdateModal(props) {
             margin="dense"
             variant="standard"
           />
-          <Select id="permission" defaultValue={"viewPublic"} autoWidth>
+          <Select
+            id="permission"
+            defaultValue={"viewPublic"}
+            {...register("permission")}
+            autoWidth
+          >
             {Object.keys(VALID_PERMISSIONS).map((perm) => (
               <MenuItem key={perm} value={perm}>
                 {VALID_PERMISSIONS[perm]}

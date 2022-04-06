@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { request } from "../utils";
 
 const PermissionsContext = React.createContext({
   isLoggedIn: false,
@@ -35,10 +36,9 @@ export const PermissionsContextProvider = (props) => {
   useEffect(() => {
     const email = localStorage.getItem("stayLoggedInEmail");
     if (email) {
-      fetch("/api/Auth/Permissions?email=" + email)
-        .then((resStream) => resStream.json())
+      request("/api/Auth/Permissions?email=" + email)
         .then((res) => {
-          if (res.result === "success") {
+          if (res.result === "Success") {
             setLoggedInUser(email);
             setPermissions(res.permissions);
           } else {
