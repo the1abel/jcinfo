@@ -2,6 +2,7 @@ import EventUpsertModal from "./EventUpsertModal";
 import React, { useState } from "react";
 import styles from "./Event.module.css";
 import { Button } from "@mui/material";
+import { Edit } from "@mui/icons-material";
 
 export default function Event(props) {
   const { canEdit, canViewPrivate, event, unitOrgs } = props;
@@ -24,9 +25,14 @@ export default function Event(props) {
           <span className={styles.orgTitle}>({event.orgs.join(", ")})</span>
         )}
         {canEdit && (
-          // TODO replace edit button with icon
-          <Button onClick={() => openEventUpsertModal(true)} className={styles.editBtn}>
-            Edit
+          <Button
+            onClick={(ev) => {
+              openEventUpsertModal(true);
+              ev.stopPropagation();
+            }}
+            className={styles.editBtn}
+          >
+            <Edit />
           </Button>
         )}
       </h3>

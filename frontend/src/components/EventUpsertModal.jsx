@@ -133,6 +133,7 @@ export default function EventUpsertModal(props) {
         onSubmit={handleSubmit(handleSave)}
         noValidate
         className={styles.form}
+        onClick={ev => ev.stopPropagation()}
       >
         <DialogTitle>{event.id ? "Edit Event" : "Create Event"}</DialogTitle>
         <DialogContent>
