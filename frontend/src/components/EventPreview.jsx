@@ -1,10 +1,10 @@
 import EventUpsertModal from "./EventUpsertModal";
-import React, { useState } from "react";
-import styles from "./Event.module.css";
+import React, { useEffect, useState } from "react";
+import styles from "./EventPreview.module.css";
 import { Button } from "@mui/material";
 import { Edit } from "@mui/icons-material";
 
-export default function Event(props) {
+export default function EventPreview(props) {
   const { canEdit, canViewPrivate, event, unitOrgs } = props;
 
   const [isExpanded, setIsExpanded] = useState(false);
@@ -16,6 +16,10 @@ export default function Event(props) {
 
   const background =
     colors.length === 1 ? colors[0] : `linear-gradient(to right, ${colors.join(",")})`;
+
+  useEffect(() => {
+    if (props.eventIdToOpen === event.id) openEventUpsertModal(true);
+  }, [event.id, props.eventIdToOpen]);
 
   return (
     <div style={{ background }} className={styles.event} onClick={handleExpand}>

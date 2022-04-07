@@ -21,6 +21,7 @@ import {
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { request } from "../utils";
+import { OpenInNew } from "@mui/icons-material";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 export default function EventUpsertModal(props) {
@@ -126,6 +127,21 @@ export default function EventUpsertModal(props) {
       .catch((err) => setError(err.toString()));
   };
 
+  const ejectToNewWindow = () => {
+    const url = window.location.href + "/UpdateEvent/" + event.id;
+
+    // create a global object to retain references to pop-out windows
+    if (!window.popOutWindows) window.popOutWindows = {};
+
+    const form = document.forms.event;
+    window.popOutWindows[event.id] = window.open(
+      url,
+      event.id,
+      `left=10, top=10, width=${form.clientWidth}, height=${form.clientHeight}`
+    );
+    closeModal();
+  };
+
   return (
     <Dialog open={props.isOpen} onClose={closeModal}>
       <form
@@ -133,9 +149,14 @@ export default function EventUpsertModal(props) {
         onSubmit={handleSubmit(handleSave)}
         noValidate
         className={styles.form}
-        onClick={ev => ev.stopPropagation()}
+        onClick={(ev) => ev.stopPropagation()}
       >
-        <DialogTitle>{event.id ? "Edit Event" : "Create Event"}</DialogTitle>
+        <DialogTitle>
+          {event.id ? "Edit Event" : "Create Event"}
+          <Button onClick={ejectToNewWindow}>
+            <OpenInNew />
+          </Button>
+        </DialogTitle>
         <DialogContent>
           <TextField
             autoFocus

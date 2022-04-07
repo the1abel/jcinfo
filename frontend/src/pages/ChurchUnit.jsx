@@ -1,4 +1,4 @@
-import Event from "../components/Event";
+import EventPreview from "../components/EventPreview";
 import ChurchUnitUpdateModal from "../components/ChurchUnitUpdateModal";
 import EventUpsertModal from "../components/EventUpsertModal";
 import Header from "../components/Header";
@@ -15,7 +15,7 @@ export default function ChurchUnit() {
   const permissions = permissionsCtx.permissions;
   const navigate = useNavigate();
 
-  const { churchUnitUrlName } = useParams();
+  const { churchUnitUrlName, eventId } = useParams();
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [pageTitle, setPageTitle] = useState("");
@@ -97,7 +97,7 @@ export default function ChurchUnit() {
 
     // avoid a no-op memory leak console warning when navigate() is called
     return () => setChurchUnitDetails(null);
-  }, [churchUnitUrlName, navigate]);
+  }, [churchUnitUrlName, eventId, navigate]);
 
   // filter events
   useEffect(() => {
@@ -167,17 +167,18 @@ export default function ChurchUnit() {
             <CircularProgress className={styles.centered} />
           ) : eventsToDisplay ? (
             eventsToDisplay.map((event) => (
-              <Event
+              <EventPreview
                 key={event.id}
                 event={event}
                 unitOrgs={churchUnitDetails.orgs}
                 canEdit={canEdit}
                 canViewPrivate={canViewPrivate}
                 onEditEvent={handleEditEvent}
+                eventIdToOpen={eventId}
               />
             ))
           ) : (
-            <Event
+            <EventPreview
               key={0}
               event={{
                 title: "There are no published events nor announcements.",

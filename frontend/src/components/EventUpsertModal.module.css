@@ -1,5 +1,10 @@
 @import "./modal.module.css";
 
+.form > h2 {
+  display: flex;
+  justify-content: space-between;
+}
+
 div.orgSelector {
   min-width: 300px;
 }
